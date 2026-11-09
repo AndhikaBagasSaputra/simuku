@@ -23,7 +23,7 @@ export function ExportPage({ data }: Props) {
     setBusy(true)
     setMessage('')
     try {
-      await downloadExcel({ ...data, transactions }, today, `keuangan_${suffix}.xlsx`)
+      await downloadExcel({ ...data, transactions }, today, `simuku_${suffix}.xlsx`)
       setMessage('✅ File Excel berhasil di-download')
     } catch {
       setMessage('⚠ Gagal membuat file Excel. Coba lagi.')

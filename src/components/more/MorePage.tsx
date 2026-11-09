@@ -4,6 +4,7 @@ import { getBillStatus, isAttention } from '../../lib/recurring'
 import { getSavingsStats } from '../../lib/savings'
 import type { RecurringBill, SavingsGoal } from '../../types'
 import type { PageKey } from '../layout/navigation'
+import { InstallCard } from '../pwa/InstallCard'
 import { ThemeToggle } from '../ui/ThemeToggle'
 
 interface Props {
@@ -44,6 +45,7 @@ export function MorePage({ goals, bills, onOpen }: Props) {
 
   return (
     <div className="space-y-4">
+    <InstallCard />
     <ul className="space-y-3">
       {items.map((item) => (
         <li key={item.view}>

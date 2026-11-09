@@ -54,7 +54,7 @@ export function downloadBackup(data: BackupData) {
   const file: BackupFile = { app: BACKUP_APP, version: BACKUP_VERSION, exportedAt: new Date().toISOString(), data }
   downloadBlob(
     new Blob([JSON.stringify(file, null, 2)], { type: 'application/json' }),
-    `keuangan-backup-${todayISO()}.json`,
+    `simuku-backup-${todayISO()}.json`,
   )
   try {
     localStorage.setItem(LAST_BACKUP_KEY, file.exportedAt)
@@ -100,7 +100,7 @@ export async function readBackupFile(file: File): Promise<ParseResult> {
   }
 
   if (!isObj(json) || json.app !== BACKUP_APP || !isObj(json.data)) {
-    return { ok: false, error: 'Ini bukan file backup aplikasi Keuangan.' }
+    return { ok: false, error: 'Ini bukan file backup aplikasi Simuku.' }
   }
   if (typeof json.version !== 'number' || json.version > BACKUP_VERSION) {
     return { ok: false, error: 'File backup ini dibuat oleh versi aplikasi yang lebih baru.' }

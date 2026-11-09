@@ -1,4 +1,5 @@
 import { Plus } from 'lucide-react'
+import { InstallCard } from '../pwa/InstallCard'
 import { ThemeToggle } from '../ui/ThemeToggle'
 import { PAGE_INFO, SIDEBAR_ITEMS, type PageKey } from './navigation'
 
@@ -14,11 +15,9 @@ export function Sidebar({ page, onNavigate, onAdd, billsBadge }: Props) {
   return (
     <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-slate-200 bg-surface lg:flex">
       <div className="flex items-center gap-3 px-6 pt-7 pb-6">
-        <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-xl text-white shadow-sm">
-          💰
-        </span>
+        <img src="/icon.svg" alt="" className="h-10 w-10 shadow-sm" />
         <div>
-          <p className="text-lg leading-tight font-extrabold text-slate-800">Keuangan</p>
+          <p className="text-lg leading-tight font-extrabold text-slate-800">Simuku</p>
           <p className="text-xs text-slate-500">Catatan keuangan pribadi</p>
         </div>
       </div>
@@ -58,6 +57,7 @@ export function Sidebar({ page, onNavigate, onAdd, billsBadge }: Props) {
       </nav>
 
       <div className="space-y-3 px-4 pb-6">
+        <InstallCard variant="compact" />
         <div>
           <p className="mb-1.5 px-2 text-xs font-semibold text-slate-500">Tampilan</p>
           <ThemeToggle />

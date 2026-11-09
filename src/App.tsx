@@ -11,6 +11,7 @@ import { HomePage } from './components/home/HomePage'
 import { MORE_PAGES, PAGE_INFO, type PageKey } from './components/layout/navigation'
 import { Sidebar } from './components/layout/Sidebar'
 import { BackupPage, type RestoreMode } from './components/more/BackupPage'
+import { UpdatePrompt } from './components/pwa/UpdatePrompt'
 import { ExportPage } from './components/more/ExportPage'
 import { MorePage } from './components/more/MorePage'
 import { SavingsDetail } from './components/savings/SavingsDetail'
@@ -315,7 +316,7 @@ function App() {
                 </button>
               )}
               <h1 className="text-2xl font-bold tracking-tight text-slate-800 lg:text-3xl">
-                {page === 'transaksi' && !isDesktop ? '💰 Keuangan' : info.title}
+                {page === 'transaksi' && !isDesktop ? '💰 Simuku' : info.title}
               </h1>
               <p className="text-sm text-slate-500">{info.subtitle}</p>
             </div>
@@ -361,6 +362,7 @@ function App() {
       </div>
 
       <Toast toast={toast} onClose={() => setToast(null)} />
+      <UpdatePrompt />
 
       <BottomNav page={page} onNavigate={setPage} onAdd={handleAdd} moreBadge={billsNeedAttention} />
 
