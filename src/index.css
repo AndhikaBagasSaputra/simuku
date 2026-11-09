@@ -1,0 +1,71 @@
+@import 'tailwindcss';
+
+/* Varian dark: aktif kalau <html> punya class "dark" (diatur oleh ThemeProvider) */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  /* Token bermakna (bukan warna mentah) supaya mudah diganti per tema */
+  --color-surface: #ffffff; /* latar kartu & panel */
+  --color-primary: #059669; /* tombol utama */
+  --color-primary-hover: #047857;
+  --color-primary-active: #065f46;
+}
+
+body {
+  @apply bg-slate-50 text-slate-800 antialiased;
+}
+
+/*
+ * ===== Mode gelap =====
+ * Daripada menambah "dark:" di ratusan tempat, skala warna netral (slate) dibalik
+ * dan warna aksen yang muda (50–200) diganti versi gelapnya. Semua komponen otomatis ikut.
+ */
+.dark {
+  color-scheme: dark; /* input tanggal, scrollbar, dll ikut gelap */
+
+  --color-surface: #151e2e;
+
+  /* Netral: terang <-> gelap */
+  --color-slate-50: #0b1220; /* latar halaman */
+  --color-slate-100: #1e293b; /* latar lembut, track tombol */
+  --color-slate-200: #2a3850; /* garis tepi */
+  --color-slate-300: #3d4d66;
+  --color-slate-400: #64748b;
+  --color-slate-500: #94a3b8; /* teks sekunder */
+  --color-slate-600: #aab7c9;
+  --color-slate-700: #cbd5e1;
+  --color-slate-800: #e2e8f0; /* teks utama */
+  --color-slate-900: #f1f5f9;
+
+  /* Hijau (aksen utama) */
+  --color-emerald-50: #072e23;
+  --color-emerald-100: #0a3d2e;
+  --color-emerald-200: #14563f;
+  --color-emerald-600: #34d399; /* hanya dipakai sebagai teks; tombol memakai --color-primary */
+  --color-emerald-700: #34d399;
+  --color-emerald-800: #6ee7b7;
+
+  /* Merah */
+  --color-rose-50: #3a1219;
+  --color-rose-100: #4a1520;
+  --color-rose-200: #6b1f2c;
+  --color-rose-600: #f43f5e;
+  --color-rose-700: #fb7185;
+
+  /* Kuning */
+  --color-amber-50: #2e2108;
+  --color-amber-100: #3d2c0a;
+  --color-amber-200: #5c430f;
+  --color-amber-700: #fbbf24;
+  --color-amber-800: #fcd34d;
+  --color-amber-900: #fde68a;
+
+  /* Biru muda */
+  --color-sky-50: #0b2a3d;
+  --color-sky-100: #0e3a52;
+  --color-sky-200: #155a7a;
+  --color-sky-700: #7dd3fc;
+  --color-sky-800: #bae6fd;
+}
