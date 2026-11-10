@@ -10,6 +10,7 @@ import { DebtsPage } from './components/debts/DebtsPage'
 import { HomePage } from './components/home/HomePage'
 import { MORE_PAGES, PAGE_INFO, type PageKey } from './components/layout/navigation'
 import { Sidebar } from './components/layout/Sidebar'
+import { AccountPage } from './components/more/AccountPage'
 import { BackupPage, type RestoreMode } from './components/more/BackupPage'
 import { UpdatePrompt } from './components/pwa/UpdatePrompt'
 import { ExportPage } from './components/more/ExportPage'
@@ -29,6 +30,7 @@ import { DESKTOP_QUERY, useMediaQuery } from './hooks/useMediaQuery'
 import { useRecurringBills } from './hooks/useRecurringBills'
 import { useSavings } from './hooks/useSavings'
 import { useSplitBills } from './hooks/useSplitBills'
+import { describeSync, useSync } from './hooks/useSync'
 import { useTransactions } from './hooks/useTransactions'
 import { mergeData, type BackupData } from './lib/backup'
 import { formatShortDate, todayISO, toMonthKey } from './lib/format'
@@ -121,6 +123,9 @@ function App() {
     restoreGoals(data.goals)
     restoreBills(data.bills)
   }
+
+  // Login & sinkron antar perangkat (tidak melakukan apa-apa kalau belum masuk)
+  const account = useSync(allData, replaceAllData)
 
   /**
    * Jalankan aksi yang bisa dibatalkan (hapus, restore backup).
@@ -354,12 +359,15 @@ function App() {
             <SplitBillsPage splitBills={splitBills} onSelect={(b) => setSelectedSplitId(b.id)} />
           )}
 
-          {page === 'lainnya' && <MorePage goals={goals} bills={bills} onOpen={setPage} />}
+          {page === 'lainnya' && (
+            <MorePage goals={goals} bills={bills} syncLabel={describeSync(account)} onOpen={setPage} />
+          )}
           {page === 'tabungan' && <SavingsPage goals={goals} onSelect={(g) => setSelectedGoalId(g.id)} />}
           {page === 'tagihan' && <BillsPage bills={bills} onSelect={(b) => setSelectedBillId(b.id)} />}
           {page === 'ekspor' && <ExportPage data={allData} />}
           {page === 'backup' && <BackupPage data={allData} onRestore={handleRestore} />}
           {page === 'keamanan' && <LockPage onNotify={showToast} />}
+          {page === 'akun' && <AccountPage account={account} />}
         </main>
       </div>
 

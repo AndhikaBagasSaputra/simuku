@@ -4,6 +4,10 @@ import './index.css'
 import App from './App.tsx'
 import { LockProvider } from './components/lock/LockProvider.tsx'
 import { ThemeProvider } from './components/ThemeProvider.tsx'
+import { prepareSyncStorage } from './lib/sync.ts'
+
+// Harus sebelum aplikasi tampil (lihat penjelasan di fungsinya)
+prepareSyncStorage()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

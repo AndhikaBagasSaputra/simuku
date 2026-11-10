@@ -11,10 +11,12 @@ import { ThemeToggle } from '../ui/ThemeToggle'
 interface Props {
   goals: SavingsGoal[]
   bills: RecurringBill[]
+  /** Status sinkron singkat, misalnya "Tersinkron 10.30" */
+  syncLabel: string
   onOpen: (page: PageKey) => void
 }
 
-export function MorePage({ goals, bills, onOpen }: Props) {
+export function MorePage({ goals, bills, syncLabel, onOpen }: Props) {
   const today = todayISO()
   const saved = goals.reduce((sum, g) => sum + getSavingsStats(g, today).saved, 0)
   const attention = bills.filter((b) => isAttention(getBillStatus(b, today).state)).length
@@ -49,6 +51,7 @@ export function MorePage({ goals, bills, onOpen }: Props) {
       title: 'Kunci Aplikasi',
       subtitle: lock.enabled ? 'Kunci PIN aktif' : 'Lindungi aplikasi dengan PIN',
     },
+    { view: 'akun', icon: '☁️', title: 'Akun & Sinkron', subtitle: syncLabel },
   ]
 
   return (

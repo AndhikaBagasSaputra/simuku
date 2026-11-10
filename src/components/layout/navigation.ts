@@ -1,5 +1,6 @@
 import {
   BellRing,
+  Cloud,
   DatabaseBackup,
   Download,
   HandCoins,
@@ -12,7 +13,7 @@ import {
 } from 'lucide-react'
 
 /** Semua halaman di aplikasi */
-export type PageKey = 'transaksi' | 'hutang' | 'splitbill' | 'lainnya' | 'tabungan' | 'tagihan' | 'ekspor' | 'backup' | 'keamanan'
+export type PageKey = 'transaksi' | 'hutang' | 'splitbill' | 'lainnya' | 'tabungan' | 'tagihan' | 'ekspor' | 'backup' | 'keamanan' | 'akun'
 
 export interface NavItem {
   key: PageKey
@@ -30,6 +31,7 @@ export const SIDEBAR_ITEMS: NavItem[] = [
   { key: 'ekspor', label: 'Ekspor Data', icon: Download },
   { key: 'backup', label: 'Backup & Restore', icon: DatabaseBackup },
   { key: 'keamanan', label: 'Kunci Aplikasi', icon: Lock },
+  { key: 'akun', label: 'Akun & Sinkron', icon: Cloud },
 ]
 
 /** Navigasi bawah HP (sisanya ada di "Lainnya") */
@@ -43,7 +45,7 @@ export const BOTTOM_RIGHT: NavItem[] = [
 ]
 
 /** Halaman yang ada di dalam menu "Lainnya" versi HP */
-export const MORE_PAGES: PageKey[] = ['lainnya', 'tabungan', 'tagihan', 'ekspor', 'backup', 'keamanan']
+export const MORE_PAGES: PageKey[] = ['lainnya', 'tabungan', 'tagihan', 'ekspor', 'backup', 'keamanan', 'akun']
 
 /** addLabel kosong = halaman tanpa tombol tambah (tidak ada daftar yang bisa ditambah di sana) */
 export const PAGE_INFO: Record<PageKey, { title: string; subtitle: string; addLabel?: string }> = {
@@ -56,4 +58,5 @@ export const PAGE_INFO: Record<PageKey, { title: string; subtitle: string; addLa
   ekspor: { title: 'Ekspor Data', subtitle: 'Download data ke Excel / CSV' },
   backup: { title: 'Backup & Restore', subtitle: 'Amankan datamu dalam satu file' },
   keamanan: { title: 'Kunci Aplikasi', subtitle: 'Lindungi aplikasi dengan PIN' },
+  akun: { title: 'Akun & Sinkron', subtitle: 'Samakan data di semua perangkatmu' },
 }
