@@ -1,5 +1,6 @@
+import { GoalIcon } from '../ui/GoalIcon'
+import { GOAL_ICONS, goalIconKey } from '../../lib/goalIcons'
 import { useState, type FormEvent } from 'react'
-import { SAVINGS_ICONS } from '../../lib/savings'
 import { inputClass, labelClass, primaryButtonClass } from '../../lib/ui'
 import type { SavingsGoal, SavingsGoalInput } from '../../types'
 import { AmountInput } from '../ui/AmountInput'
@@ -13,7 +14,7 @@ interface Props {
 
 export function SavingsForm({ initial, onSubmit, onClose }: Props) {
   const [name, setName] = useState(initial?.name ?? '')
-  const [icon, setIcon] = useState(initial?.icon ?? SAVINGS_ICONS[0])
+  const [icon, setIcon] = useState(initial ? goalIconKey(initial.icon) : 'target')
   const [target, setTarget] = useState(initial?.target ?? 0)
   const [deadline, setDeadline] = useState(initial?.deadline ?? '')
   const [note, setNote] = useState(initial?.note ?? '')
@@ -45,16 +46,20 @@ export function SavingsForm({ initial, onSubmit, onClose }: Props) {
         <div className="mt-4">
           <span className={labelClass}>Ikon</span>
           <div className="mt-1 grid grid-cols-6 gap-2">
-            {SAVINGS_ICONS.map((i) => (
+            {Object.keys(GOAL_ICONS).map((i) => (
               <button
                 key={i}
                 type="button"
                 onClick={() => setIcon(i)}
-                className={`rounded-xl border py-2 text-2xl ${
-                  icon === i ? 'border-emerald-500 bg-emerald-50' : 'border-slate-200 hover:bg-slate-50'
+                aria-label={i}
+                aria-pressed={icon === i}
+                className={`flex items-center justify-center rounded-xl border py-2.5 ${
+                  icon === i
+                    ? 'border-emerald-500 bg-emerald-50 text-emerald-700'
+                    : 'border-slate-200 text-slate-600 hover:bg-slate-50'
                 }`}
               >
-                {i}
+                <GoalIcon icon={i} />
               </button>
             ))}
           </div>
@@ -84,7 +89,7 @@ export function SavingsForm({ initial, onSubmit, onClose }: Props) {
           />
         </label>
 
-        {error && <p className="mt-3 text-sm font-medium text-rose-600">⚠ {error}</p>}
+        {error && <p className="mt-3 text-sm font-medium text-rose-600">{error}</p>}
 
         <button type="submit" className={`mt-5 w-full ${primaryButtonClass}`}>
           {initial ? 'Simpan Perubahan' : 'Simpan'}

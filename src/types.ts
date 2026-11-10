@@ -169,7 +169,6 @@ export type RecurringBillInput = Omit<RecurringBill, 'id' | 'createdAt' | 'payme
 export interface Category {
   id: string
   name: string
-  icon: string
   type: TransactionType
   /** Warna tetap untuk grafik (tidak berubah walau urutan/ranking berubah) */
   color: string

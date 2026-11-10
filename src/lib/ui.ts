@@ -16,7 +16,7 @@ export const dangerButtonClass =
   'rounded-xl border border-rose-200 px-4 py-3 font-semibold text-rose-600 hover:bg-rose-50'
 
 export function segmentClass(active: boolean) {
-  return `rounded-lg py-2 text-sm font-semibold transition ${
+  return `flex min-h-9 items-center justify-center rounded-lg px-2 text-sm font-semibold transition pointer-coarse:min-h-11 ${
     active ? 'bg-surface text-slate-800 shadow-sm' : 'text-slate-500'
   }`
 }

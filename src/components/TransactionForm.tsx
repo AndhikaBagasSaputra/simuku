@@ -1,3 +1,4 @@
+import { CategoryIcon } from './ui/CategoryIcon'
 import { useState, type FormEvent } from 'react'
 import { getCategoriesByType } from '../lib/categories'
 import { todayISO } from '../lib/format'
@@ -85,7 +86,7 @@ export function TransactionForm({ initial, onSubmit, onDelete, onClose }: Props)
                     : 'border-slate-200 text-slate-600 hover:bg-slate-50'
                 }`}
               >
-                <span className="text-2xl">{c.icon}</span>
+                <CategoryIcon categoryId={c.id} />
                 <span className="text-center leading-tight">{c.name}</span>
               </button>
             ))}
@@ -114,7 +115,7 @@ export function TransactionForm({ initial, onSubmit, onDelete, onClose }: Props)
           />
         </label>
 
-        {error && <p className="mt-3 text-sm font-medium text-rose-600">⚠ {error}</p>}
+        {error && <p className="mt-3 text-sm font-medium text-rose-600">{error}</p>}
 
         <div className="mt-5 flex gap-2">
           {isEdit && onDelete && (

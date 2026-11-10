@@ -1,3 +1,4 @@
+import { ArrowDownLeft, ArrowUpRight } from 'lucide-react'
 import { useState, type FormEvent } from 'react'
 import { formatRupiah, formatShortDate, todayISO } from '../../lib/format'
 import { getSavingsStats } from '../../lib/savings'
@@ -40,7 +41,7 @@ export function SavingsDetail({ goal, onClose, onEdit, onDelete, onAddEntry, onD
   }
 
   return (
-    <Sheet title={`${goal.icon} ${goal.name}`} onClose={onClose}>
+    <Sheet title={goal.name} onClose={onClose}>
       <div className="rounded-2xl bg-slate-50 p-4">
         <div className="flex items-end justify-between gap-2">
           <div>
@@ -56,7 +57,7 @@ export function SavingsDetail({ goal, onClose, onEdit, onDelete, onAddEntry, onD
 
         {stats.achieved ? (
           <p className="mt-3 rounded-xl bg-emerald-100 p-3 text-sm font-semibold text-emerald-800">
-            🎉 Selamat! Target sudah tercapai.
+            Selamat! Target sudah tercapai.
           </p>
         ) : (
           <div className="mt-3 space-y-1 text-sm text-slate-600">
@@ -65,28 +66,28 @@ export function SavingsDetail({ goal, onClose, onEdit, onDelete, onAddEntry, onD
             </p>
             {goal.deadline && stats.daysLeft !== null && (
               <p>
-                📅 Tenggat {formatShortDate(goal.deadline)}{' '}
+                Tenggat {formatShortDate(goal.deadline)}{' '}
                 {stats.daysLeft >= 0 ? `(${stats.daysLeft} hari lagi)` : '(sudah lewat)'}
               </p>
             )}
             {stats.perMonth > 0 && (
               <p className="rounded-xl bg-surface p-3 text-slate-700">
-                💡 Supaya tercapai tepat waktu, nabung sekitar <b>{formatRupiah(stats.perMonth)}/bulan</b> atau{' '}
+                Supaya tercapai tepat waktu, nabung sekitar <b>{formatRupiah(stats.perMonth)}/bulan</b> atau{' '}
                 <b>{formatRupiah(stats.perWeek)}/minggu</b>.
               </p>
             )}
           </div>
         )}
-        {goal.note && <p className="mt-2 text-xs text-slate-500">📝 {goal.note}</p>}
+        {goal.note && <p className="mt-2 text-xs text-slate-500">{goal.note}</p>}
       </div>
 
       <form onSubmit={handleSubmit} className="mt-4 rounded-2xl border border-slate-200 p-4">
         <div className="grid grid-cols-2 gap-1 rounded-xl bg-slate-100 p-1">
           <button type="button" onClick={() => setKind('deposit')} className={segmentClass(kind === 'deposit')}>
-            💰 Nabung
+            Nabung
           </button>
           <button type="button" onClick={() => setKind('withdraw')} className={segmentClass(kind === 'withdraw')}>
-            📤 Ambil
+            Ambil
           </button>
         </div>
 
@@ -122,7 +123,7 @@ export function SavingsDetail({ goal, onClose, onEdit, onDelete, onAddEntry, onD
           </label>
         </div>
 
-        {error && <p className="mt-2 text-sm font-medium text-rose-600">⚠ {error}</p>}
+        {error && <p className="mt-2 text-sm font-medium text-rose-600">{error}</p>}
 
         <button type="submit" className={`mt-3 w-full ${primaryButtonClass}`}>
           {kind === 'deposit' ? 'Simpan Tabungan' : 'Simpan Pengambilan'}
@@ -137,7 +138,11 @@ export function SavingsDetail({ goal, onClose, onEdit, onDelete, onAddEntry, onD
           <ul className="mt-2 divide-y divide-slate-100 rounded-xl border border-slate-100">
             {entries.map((e) => (
               <li key={e.id} className="flex items-center gap-3 px-3 py-2.5 text-sm">
-                <span className="text-lg">{e.kind === 'deposit' ? '💰' : '📤'}</span>
+                {e.kind === 'deposit' ? (
+                  <ArrowDownLeft className="h-5 w-5 shrink-0 text-emerald-700" aria-hidden="true" />
+                ) : (
+                  <ArrowUpRight className="h-5 w-5 shrink-0 text-rose-600" aria-hidden="true" />
+                )}
                 <span className="min-w-0 flex-1">
                   <span className="block text-slate-700">
                     {e.kind === 'deposit' ? 'Nabung' : 'Ambil'} · {formatShortDate(e.date)}
@@ -175,7 +180,7 @@ export function SavingsDetail({ goal, onClose, onEdit, onDelete, onAddEntry, onD
           onClick={onEdit}
           className="flex-1 rounded-xl border border-slate-200 py-3 font-semibold text-slate-700 hover:bg-slate-50"
         >
-          ✏️ Edit
+          Edit
         </button>
       </div>
     </Sheet>

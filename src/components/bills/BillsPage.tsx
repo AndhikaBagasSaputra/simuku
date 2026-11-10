@@ -1,4 +1,6 @@
-import { getCategory } from '../../lib/categories'
+import { BellRing } from 'lucide-react'
+import { EmptyIcon } from '../ui/EmptyIcon'
+import { CategoryIcon } from '../ui/CategoryIcon'
 import { formatRupiah, todayISO } from '../../lib/format'
 import { describeDue, FREQUENCY_LABEL, getBillStatus, monthlyEstimate } from '../../lib/recurring'
 import type { RecurringBill } from '../../types'
@@ -14,8 +16,8 @@ export function BillsPage({ bills, onSelect }: Props) {
   if (bills.length === 0) {
     return (
       <div className="rounded-2xl bg-surface p-8 text-center shadow-sm">
-        <p className="text-4xl">🔔</p>
-        <p className="mt-2 font-medium text-slate-700">Belum ada tagihan rutin</p>
+        <EmptyIcon icon={BellRing} />
+        <p className="mt-3 font-medium text-slate-700">Belum ada tagihan rutin</p>
         <p className="mt-1 text-sm text-slate-500">
           Tekan tombol <b>+</b> untuk menambah langganan (Netflix, internet, kos) atau cicilan.
         </p>
@@ -49,9 +51,7 @@ export function BillsPage({ bills, onSelect }: Props) {
                 className="h-full w-full rounded-2xl bg-surface p-4 text-left shadow-sm hover:bg-slate-50"
               >
                 <div className="flex items-center gap-3">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xl">
-                    {getCategory(bill.categoryId).icon}
-                  </span>
+                  <CategoryIcon categoryId={bill.categoryId} />
                   <span className="min-w-0 flex-1">
                     <span className="block truncate font-semibold text-slate-800">{bill.name}</span>
                     <span className="block text-xs text-slate-500">
@@ -64,7 +64,7 @@ export function BillsPage({ bills, onSelect }: Props) {
                   <span className="shrink-0 font-semibold text-slate-800">{formatRupiah(bill.amount)}</span>
                 </div>
                 <p className={`mt-2 text-sm font-medium ${due.className}`}>
-                  {due.icon} {due.text}
+                  {due.text}
                 </p>
               </button>
             </li>

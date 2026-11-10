@@ -1,3 +1,4 @@
+import { CalendarDays, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useState } from 'react'
 import { formatMonth, shiftMonth } from '../lib/format'
 import { describeRange, getPresetLabel, getRange, PRESETS, type Period, type PresetId } from '../lib/period'
@@ -38,7 +39,7 @@ export function PeriodPicker({ period, onChange }: Props) {
   }
 
   const arrowClass =
-    'h-10 w-10 shrink-0 rounded-full text-xl text-slate-600 hover:bg-slate-200 active:bg-slate-300'
+    'flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-slate-600 hover:bg-slate-200 active:bg-slate-300'
   const isMonth = period.preset === 'month'
 
   return (
@@ -51,16 +52,16 @@ export function PeriodPicker({ period, onChange }: Props) {
             onClick={() => onChange({ ...period, month: shiftMonth(period.month, -1) })}
             aria-label="Bulan sebelumnya"
           >
-            ‹
+            <ChevronLeft className="h-5 w-5" aria-hidden="true" />
           </button>
         )}
 
         <button
           type="button"
           onClick={openSheet}
-          className="flex min-w-0 flex-1 items-center justify-center gap-2 rounded-xl px-3 py-2 hover:bg-slate-200/70"
+          className="flex min-h-11 min-w-0 flex-1 items-center justify-center gap-2 rounded-xl px-3 py-1.5 hover:bg-slate-200/70"
         >
-          <span className="text-lg">📅</span>
+          <CalendarDays className="h-5 w-5 shrink-0 text-emerald-700" aria-hidden="true" />
           <span className="min-w-0 text-center">
             <span className="block truncate font-semibold text-slate-800">
               {isMonth ? formatMonth(period.month) : getPresetLabel(period.preset)}
@@ -69,7 +70,7 @@ export function PeriodPicker({ period, onChange }: Props) {
               <span className="block truncate text-xs text-slate-500">{describeRange(period)}</span>
             )}
           </span>
-          <span className="text-xs text-slate-400">▼</span>
+          <ChevronDown className="h-4 w-4 shrink-0 text-slate-500" aria-hidden="true" />
         </button>
 
         {isMonth && (
@@ -79,7 +80,7 @@ export function PeriodPicker({ period, onChange }: Props) {
             onClick={() => onChange({ ...period, month: shiftMonth(period.month, 1) })}
             aria-label="Bulan berikutnya"
           >
-            ›
+            <ChevronRight className="h-5 w-5" aria-hidden="true" />
           </button>
         )}
       </div>

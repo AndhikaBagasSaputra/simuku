@@ -111,12 +111,12 @@ export function DebtForm({ initial, defaultDirection, personSuggestions, onSubmi
 
         {isEdit && (
           <p className="mt-3 text-xs text-slate-500">
-            💡 Riwayat pembayaran tetap tersimpan. Kalau nominal diubah jadi lebih kecil dari yang
+            Riwayat pembayaran tetap tersimpan. Kalau nominal diubah jadi lebih kecil dari yang
             sudah dibayar, kelebihannya akan otomatis ditampilkan.
           </p>
         )}
 
-        {error && <p className="mt-3 text-sm font-medium text-rose-600">⚠ {error}</p>}
+        {error && <p className="mt-3 text-sm font-medium text-rose-600">{error}</p>}
 
         <button type="submit" className={`mt-5 w-full ${primaryButtonClass}`}>
           {isEdit ? 'Simpan Perubahan' : 'Simpan'}

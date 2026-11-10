@@ -1,3 +1,4 @@
+import { BellRing, Cloud, DatabaseBackup, Download, Lock, Target, type LucideIcon } from 'lucide-react'
 import { useAppLock } from '../../hooks/useAppLock'
 import { getLastBackup } from '../../lib/backup'
 import { formatRupiah, formatShortDate, todayISO } from '../../lib/format'
@@ -23,35 +24,35 @@ export function MorePage({ goals, bills, syncLabel, onOpen }: Props) {
   const lastBackup = getLastBackup()
   const lock = useAppLock()
 
-  const items: { view: PageKey; icon: string; title: string; subtitle: string; badge?: string }[] = [
+  const items: { view: PageKey; icon: LucideIcon; title: string; subtitle: string; badge?: string }[] = [
     {
       view: 'tabungan',
-      icon: '🎯',
+      icon: Target,
       title: 'Target Tabungan',
       subtitle: goals.length ? `${goals.length} target · ${formatRupiah(saved)} terkumpul` : 'Rencanakan tabunganmu',
     },
     {
       view: 'tagihan',
-      icon: '🔔',
+      icon: BellRing,
       title: 'Tagihan Rutin',
       subtitle: bills.length ? `${bills.length} tagihan & cicilan` : 'Langganan & cicilan',
       badge: attention ? `${attention} perlu dibayar` : undefined,
     },
-    { view: 'ekspor', icon: '📥', title: 'Ekspor Data', subtitle: 'Download Excel / CSV' },
+    { view: 'ekspor', icon: Download, title: 'Ekspor Data', subtitle: 'Download Excel / CSV' },
     {
       view: 'backup',
-      icon: '💾',
+      icon: DatabaseBackup,
       title: 'Backup & Restore',
       subtitle: lastBackup ? `Terakhir backup ${formatShortDate(lastBackup.slice(0, 10))}` : 'Belum pernah backup',
       badge: !lastBackup ? 'Disarankan' : undefined,
     },
     {
       view: 'keamanan',
-      icon: '🔒',
+      icon: Lock,
       title: 'Kunci Aplikasi',
       subtitle: lock.enabled ? 'Kunci PIN aktif' : 'Lindungi aplikasi dengan PIN',
     },
-    { view: 'akun', icon: '☁️', title: 'Akun & Sinkron', subtitle: syncLabel },
+    { view: 'akun', icon: Cloud, title: 'Akun & Sinkron', subtitle: syncLabel },
   ]
 
   return (
@@ -65,8 +66,8 @@ export function MorePage({ goals, bills, syncLabel, onOpen }: Props) {
             onClick={() => onOpen(item.view)}
             className="flex w-full items-center gap-3 rounded-2xl bg-surface p-4 text-left shadow-sm hover:bg-slate-50"
           >
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-slate-100 text-2xl">
-              {item.icon}
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-600">
+              <item.icon className="h-5 w-5" aria-hidden="true" />
             </span>
             <span className="min-w-0 flex-1">
               <span className="block font-semibold text-slate-800">{item.title}</span>
@@ -84,7 +85,7 @@ export function MorePage({ goals, bills, syncLabel, onOpen }: Props) {
     </ul>
 
       <section className="rounded-2xl bg-surface p-4 shadow-sm">
-        <p className="mb-2 font-semibold text-slate-800">🎨 Tampilan</p>
+        <p className="mb-2 font-semibold text-slate-800">Tampilan</p>
         <ThemeToggle />
       </section>
     </div>

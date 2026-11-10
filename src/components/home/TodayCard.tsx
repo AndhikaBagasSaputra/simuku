@@ -2,11 +2,11 @@ import { formatRupiah, formatShortDate, todayISO } from '../../lib/format'
 import type { Transaction } from '../../types'
 
 interface Props {
-  /** Semua transaksi: kartu ini tidak ikut periode yang dipilih */
+  /** Semua transaksi: baris ini tidak ikut periode yang dipilih */
   transactions: Transaction[]
 }
 
-/** Ringkasan pemasukan & pengeluaran khusus hari ini */
+/** Ringkasan hari ini dalam satu baris: cukup untuk memastikan catatan barusan sudah masuk */
 export function TodayCard({ transactions }: Props) {
   const today = todayISO()
   let income = 0
@@ -20,23 +20,19 @@ export function TodayCard({ transactions }: Props) {
   }
 
   return (
-    <section className="rounded-2xl bg-surface p-4 shadow-sm">
-      <div className="flex items-baseline justify-between gap-2">
+    <section className="flex items-center gap-3 rounded-2xl bg-surface px-4 py-3 shadow-sm">
+      <div className="min-w-0 flex-1">
         <h2 className="font-semibold text-slate-800">Hari ini</h2>
-        <span className="text-xs text-slate-500">
+        <p className="truncate text-xs text-slate-500">
           {formatShortDate(today)} · {count ? `${count} transaksi` : 'belum ada transaksi'}
-        </span>
+        </p>
       </div>
-      <div className="mt-3 grid grid-cols-2 gap-3">
-        <div className="min-w-0 rounded-xl bg-emerald-50 p-3">
-          <p className="text-xs text-slate-600">⬇ Pemasukan</p>
-          <p className="mt-0.5 truncate font-semibold text-emerald-700">{formatRupiah(income)}</p>
+      {count > 0 && (
+        <div className="shrink-0 text-right text-sm font-semibold tabular-nums">
+          {income > 0 && <p className="text-emerald-700">+{formatRupiah(income)}</p>}
+          {expense > 0 && <p className="text-rose-600">−{formatRupiah(expense)}</p>}
         </div>
-        <div className="min-w-0 rounded-xl bg-rose-50 p-3">
-          <p className="text-xs text-slate-600">⬆ Pengeluaran</p>
-          <p className="mt-0.5 truncate font-semibold text-rose-600">{formatRupiah(expense)}</p>
-        </div>
-      </div>
+      )}
     </section>
   )
 }

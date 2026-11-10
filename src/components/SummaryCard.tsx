@@ -6,7 +6,8 @@ interface Props {
   label?: string
 }
 
-export function SummaryCard({ transactions, label = 'Selisih bulan ini' }: Props) {
+/** Kartu utama: sisa uang di periode terpilih, dengan rincian masuk & keluar dalam satu baris */
+export function SummaryCard({ transactions, label = 'Sisa bulan ini' }: Props) {
   let income = 0
   let expense = 0
   for (const t of transactions) {
@@ -14,25 +15,31 @@ export function SummaryCard({ transactions, label = 'Selisih bulan ini' }: Props
     else expense += t.amount
   }
   const balance = income - expense
+  const minus = balance < 0
 
   return (
-    <div className="rounded-2xl bg-primary p-5 text-white shadow-sm">
-      <p className="text-sm text-white/80">{label}</p>
-      <p className="mt-1 text-3xl font-bold">
-        {balance < 0 && '-'}
+    <section className="rounded-2xl bg-primary px-5 py-4 text-white shadow-sm">
+      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+        <h2 className="text-sm font-medium">{label}</h2>
+        {/* Saat minus kartu tetap hijau; tandanya label terang ini, bukan teks merah di atas hijau */}
+        {minus && (
+          <span className="rounded-full bg-white px-2.5 py-0.5 text-xs font-semibold text-rose-700">
+            Pengeluaran melebihi pemasukan
+          </span>
+        )}
+      </div>
+      <p className="mt-1 text-3xl font-bold tabular-nums">
+        {minus && '−'}
         {formatRupiah(Math.abs(balance))}
       </p>
-
-      <div className="mt-4 grid grid-cols-2 gap-3">
-        <div className="rounded-xl bg-white/15 p-3">
-          <p className="text-xs text-white/80">⬇ Pemasukan</p>
-          <p className="mt-0.5 font-semibold">{formatRupiah(income)}</p>
-        </div>
-        <div className="rounded-xl bg-white/15 p-3">
-          <p className="text-xs text-white/80">⬆ Pengeluaran</p>
-          <p className="mt-0.5 font-semibold">{formatRupiah(expense)}</p>
-        </div>
-      </div>
-    </div>
+      <p className="mt-2 flex flex-wrap gap-x-4 gap-y-0.5 text-sm tabular-nums">
+        <span>
+          <span className="font-semibold">+{formatRupiah(income)}</span> masuk
+        </span>
+        <span>
+          <span className="font-semibold">−{formatRupiah(expense)}</span> keluar
+        </span>
+      </p>
+    </section>
   )
 }

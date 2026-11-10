@@ -102,8 +102,8 @@ export function SplitItemCard({ item, index, participants, onChange, onRemove }:
             {left === 0
               ? '✓ Semua sudah terbagi'
               : left > 0
-                ? `⚠ ${left} lagi belum ada yang ambil`
-                : `⚠ Kelebihan ${-left}, jumlah item cuma ${item.qty}`}
+                ? `${left} lagi belum ada yang ambil`
+                : `Kelebihan ${-left}, jumlah item cuma ${item.qty}`}
           </p>
         </div>
       ) : (

@@ -66,7 +66,7 @@ export function Sidebar({ page, onNavigate, onAdd, billsBadge }: Props) {
           <p className="mb-1.5 px-2 text-xs font-semibold text-slate-500">Tampilan</p>
           <ThemeToggle />
         </div>
-        <p className="px-2 text-xs text-slate-400">Data tersimpan di browser ini</p>
+        <p className="px-2 text-xs text-slate-500">Data tersimpan di browser ini</p>
       </div>
     </aside>
   )

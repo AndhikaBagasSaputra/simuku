@@ -1,3 +1,6 @@
+import { Target } from 'lucide-react'
+import { EmptyIcon } from '../ui/EmptyIcon'
+import { GoalIcon } from '../ui/GoalIcon'
 import { formatRupiah, formatShortDate, todayISO } from '../../lib/format'
 import { getSavingsStats } from '../../lib/savings'
 import type { SavingsGoal } from '../../types'
@@ -19,8 +22,8 @@ export function SavingsPage({ goals, onSelect }: Props) {
   if (goals.length === 0) {
     return (
       <div className="rounded-2xl bg-surface p-8 text-center shadow-sm">
-        <p className="text-4xl">🎯</p>
-        <p className="mt-2 font-medium text-slate-700">Belum ada target tabungan</p>
+        <EmptyIcon icon={Target} />
+        <p className="mt-3 font-medium text-slate-700">Belum ada target tabungan</p>
         <p className="mt-1 text-sm text-slate-500">
           Tekan tombol <b>+</b> untuk membuat target, misalnya beli laptop atau dana darurat.
         </p>
@@ -45,8 +48,8 @@ export function SavingsPage({ goals, onSelect }: Props) {
               className="h-full w-full rounded-2xl bg-surface p-4 text-left shadow-sm hover:bg-slate-50"
             >
               <div className="flex items-center gap-3">
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-slate-100 text-2xl">
-                  {goal.icon}
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-emerald-700">
+                  <GoalIcon icon={goal.icon} />
                 </span>
                 <span className="min-w-0 flex-1">
                   <span className="block truncate font-semibold text-slate-800">{goal.name}</span>
@@ -61,11 +64,11 @@ export function SavingsPage({ goals, onSelect }: Props) {
               </div>
               <p className="mt-2 text-xs text-slate-500">
                 {stats.achieved
-                  ? '🎉 Target tercapai!'
+                  ? 'Target tercapai!'
                   : stats.daysLeft === null
                     ? `Kurang ${formatRupiah(stats.remaining)}`
                     : stats.daysLeft < 0
-                      ? `⚠️ Lewat tenggat (${formatShortDate(goal.deadline)}) · kurang ${formatRupiah(stats.remaining)}`
+                      ? `Lewat tenggat (${formatShortDate(goal.deadline)}) · kurang ${formatRupiah(stats.remaining)}`
                       : `Kurang ${formatRupiah(stats.remaining)} · nabung ±${formatRupiah(stats.perMonth)}/bulan`}
               </p>
             </button>

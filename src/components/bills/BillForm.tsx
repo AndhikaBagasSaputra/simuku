@@ -49,10 +49,10 @@ export function BillForm({ initial, onSubmit, onClose }: Props) {
       <form onSubmit={handleSubmit}>
         <div className="grid grid-cols-2 gap-1 rounded-xl bg-slate-100 p-1">
           <button type="button" onClick={() => setKind('subscription')} className={segmentClass(kind === 'subscription')}>
-            🔁 Langganan
+            Langganan
           </button>
           <button type="button" onClick={() => setKind('installment')} className={segmentClass(kind === 'installment')}>
-            🧮 Cicilan
+            Cicilan
           </button>
         </div>
 
@@ -100,7 +100,7 @@ export function BillForm({ initial, onSubmit, onClose }: Props) {
             <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)} className={`${inputClass} bg-surface`}>
               {getCategoriesByType('expense').map((c) => (
                 <option key={c.id} value={c.id}>
-                  {c.icon} {c.name}
+                  {c.name}
                 </option>
               ))}
             </select>
@@ -126,7 +126,7 @@ export function BillForm({ initial, onSubmit, onClose }: Props) {
           <input type="text" maxLength={100} value={note} onChange={(e) => setNote(e.target.value)} className={inputClass} />
         </label>
 
-        {error && <p className="mt-3 text-sm font-medium text-rose-600">⚠ {error}</p>}
+        {error && <p className="mt-3 text-sm font-medium text-rose-600">{error}</p>}
 
         <button type="submit" className={`mt-5 w-full ${primaryButtonClass}`}>
           {initial ? 'Simpan Perubahan' : 'Simpan'}

@@ -149,7 +149,7 @@ export function AccountPage({ account }: Props) {
 
         {error && (
           <p role="alert" className="mt-3 text-sm font-medium text-rose-600">
-            ⚠ {error}
+            {error}
           </p>
         )}
         {notice && (

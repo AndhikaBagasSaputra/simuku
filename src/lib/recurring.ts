@@ -48,15 +48,15 @@ export function getBillStatus(bill: RecurringBill, today: string): BillStatus {
 export function describeDue(status: BillStatus) {
   switch (status.state) {
     case 'overdue':
-      return { text: `Lewat ${-(status.daysLeft ?? 0)} hari`, icon: '⚠️', className: 'text-rose-600' }
+      return { text: `Lewat ${-(status.daysLeft ?? 0)} hari`, className: 'text-rose-600' }
     case 'today':
-      return { text: 'Jatuh tempo hari ini', icon: '🔔', className: 'text-amber-700' }
+      return { text: 'Jatuh tempo hari ini', className: 'text-amber-700' }
     case 'soon':
-      return { text: `${status.daysLeft} hari lagi`, icon: '⏰', className: 'text-amber-700' }
+      return { text: `${status.daysLeft} hari lagi`, className: 'text-amber-700' }
     case 'upcoming':
-      return { text: formatShortDate(status.nextDue ?? ''), icon: '📅', className: 'text-slate-500' }
+      return { text: formatShortDate(status.nextDue ?? ''), className: 'text-slate-500' }
     case 'finished':
-      return { text: 'Cicilan lunas', icon: '✅', className: 'text-emerald-700' }
+      return { text: 'Cicilan lunas', className: 'text-emerald-700' }
   }
 }
 

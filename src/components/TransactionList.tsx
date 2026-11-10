@@ -1,4 +1,5 @@
-import { ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react'
+import { CategoryIcon } from './ui/CategoryIcon'
+import { BellRing, ChevronDown, ChevronLeft, ChevronRight, NotebookPen, ReceiptText } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { getCategory } from '../lib/categories'
 import { formatDate, formatRupiah } from '../lib/format'
@@ -20,8 +21,10 @@ export function TransactionList({ transactions, onSelect, expandAll = false }: P
   if (transactions.length === 0) {
     return (
       <div className="rounded-2xl bg-surface p-8 text-center shadow-sm">
-        <p className="text-4xl">📝</p>
-        <p className="mt-2 font-medium text-slate-700">Belum ada transaksi</p>
+        <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-emerald-50 text-emerald-700">
+          <NotebookPen className="h-6 w-6" aria-hidden="true" />
+        </span>
+        <p className="mt-3 font-medium text-slate-700">Belum ada transaksi</p>
         <p className="mt-1 text-sm text-slate-500">
           Tekan tombol <b>+</b> untuk mencatat transaksi pertamamu.
         </p>
@@ -46,7 +49,8 @@ export function TransactionList({ transactions, onSelect, expandAll = false }: P
 
   function goToPage(next: number) {
     setPage(next)
-    topRef.current?.scrollIntoView({ block: 'start', behavior: 'smooth' })
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    topRef.current?.scrollIntoView({ block: 'start', behavior: reduceMotion ? 'auto' : 'smooth' })
   }
 
   return (
@@ -99,20 +103,18 @@ export function TransactionList({ transactions, onSelect, expandAll = false }: P
                         onClick={() => onSelect(t)}
                         className="flex w-full items-center gap-3 p-3 text-left hover:bg-slate-50"
                       >
-                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xl">
-                          {category.icon}
-                        </span>
+                        <CategoryIcon categoryId={t.categoryId} />
                         <span className="min-w-0 flex-1">
                           <span className="block font-medium text-slate-800">
                             {category.name}
                             {t.splitBillId && (
-                              <span className="ml-1.5 rounded bg-slate-100 px-1.5 py-0.5 text-xs font-medium text-slate-500">
-                                🧾 Split bill
+                              <span className="ml-1.5 inline-flex items-center gap-1 rounded bg-slate-100 px-1.5 py-0.5 align-middle text-xs font-medium text-slate-600">
+                                <ReceiptText className="h-3 w-3" aria-hidden="true" /> Split bill
                               </span>
                             )}
                             {t.recurringBillId && (
-                              <span className="ml-1.5 rounded bg-slate-100 px-1.5 py-0.5 text-xs font-medium text-slate-500">
-                                🔔 Tagihan
+                              <span className="ml-1.5 inline-flex items-center gap-1 rounded bg-slate-100 px-1.5 py-0.5 align-middle text-xs font-medium text-slate-600">
+                                <BellRing className="h-3 w-3" aria-hidden="true" /> Tagihan
                               </span>
                             )}
                           </span>
@@ -147,7 +149,7 @@ export function TransactionList({ transactions, onSelect, expandAll = false }: P
           </button>
           {pageNumbers(current, pageCount).map((n, i) =>
             n === null ? (
-              <span key={`gap-${i}`} className="px-1 text-sm text-slate-400">
+              <span key={`gap-${i}`} className="px-1 text-sm text-slate-500">
                 …
               </span>
             ) : (
@@ -181,17 +183,20 @@ export function TransactionList({ transactions, onSelect, expandAll = false }: P
 const DAYS_PER_PAGE = 7
 
 function pageButtonClass(active: boolean) {
-  return `flex h-9 min-w-9 items-center justify-center rounded-lg border px-2 text-sm font-semibold disabled:opacity-40 ${
+  return `flex h-9 min-w-9 items-center justify-center rounded-lg border px-2 text-sm font-semibold disabled:opacity-40 pointer-coarse:h-11 pointer-coarse:min-w-11 ${
     active
       ? 'border-primary bg-primary text-white'
       : 'border-slate-200 bg-surface text-slate-600 hover:bg-slate-50 disabled:hover:bg-surface'
   }`
 }
 
-/** Nomor halaman yang ditampilkan: awal, akhir, dan sekitar halaman aktif. null = "…" */
+/**
+ * Nomor halaman yang ditampilkan. null = "…".
+ * Paling banyak 5 nomor, atau awal · aktif · akhir, supaya tombol 44px tetap muat satu baris di HP 360px.
+ */
 function pageNumbers(current: number, total: number): (number | null)[] {
-  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1)
-  const shown = [1, current - 1, current, current + 1, total].filter((n) => n >= 1 && n <= total)
+  if (total <= 5) return Array.from({ length: total }, (_, i) => i + 1)
+  const shown = [1, current, total]
   const result: (number | null)[] = []
   for (const n of [...new Set(shown)]) {
     const last = result[result.length - 1]

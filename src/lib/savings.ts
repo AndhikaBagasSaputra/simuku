@@ -14,8 +14,6 @@ export interface SavingsStats {
   perWeek: number
 }
 
-export const SAVINGS_ICONS = ['🎯', '🏠', '🚗', '🏍️', '✈️', '💻', '📱', '🎓', '💍', '🏥', '🎁', '💰']
-
 export function getSavingsStats(goal: SavingsGoal, today: string): SavingsStats {
   const saved = goal.entries.reduce((sum, e) => sum + (e.kind === 'deposit' ? e.amount : -e.amount), 0)
   const remaining = Math.max(goal.target - saved, 0)

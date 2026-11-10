@@ -84,7 +84,7 @@ function savingsRows(goals: SavingsGoal[], today: string): Row[] {
   return goals.map((g) => {
     const s = getSavingsStats(g, today)
     return {
-      Target: `${g.icon} ${g.name}`,
+      Target: g.name,
       'Nominal target': g.target,
       Terkumpul: s.saved,
       Kurang: s.remaining,

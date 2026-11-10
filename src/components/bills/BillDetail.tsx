@@ -1,3 +1,4 @@
+import { CircleCheck } from 'lucide-react'
 import { useState, type FormEvent } from 'react'
 import { getCategory } from '../../lib/categories'
 import { formatRupiah, formatShortDate, todayISO } from '../../lib/format'
@@ -57,12 +58,12 @@ export function BillDetail({ bill, onClose, onEdit, onDelete, onPay, onDeletePay
             <p className="text-2xl font-bold text-slate-800">{formatRupiah(bill.amount)}</p>
           </div>
           <span className="text-sm text-slate-500">
-            {category.icon} {category.name}
+            {category.name}
           </span>
         </div>
 
         <p className={`mt-3 font-semibold ${due.className}`}>
-          {due.icon} {status.nextDue ? `${formatShortDate(status.nextDue)} · ${due.text}` : due.text}
+          {status.nextDue ? `${formatShortDate(status.nextDue)} · ${due.text}` : due.text}
         </p>
 
         {bill.kind === 'installment' && bill.installments > 0 && (
@@ -79,13 +80,13 @@ export function BillDetail({ bill, onClose, onEdit, onDelete, onPay, onDeletePay
             </p>
           </>
         )}
-        {bill.note && <p className="mt-2 text-xs text-slate-500">📝 {bill.note}</p>}
+        {bill.note && <p className="mt-2 text-xs text-slate-500">{bill.note}</p>}
       </div>
 
       {status.nextDue && (
         <form onSubmit={handlePay} className="mt-4 rounded-2xl border border-slate-200 p-4">
           <p className="font-semibold text-slate-800">
-            ✅ Bayar tagihan {formatShortDate(status.nextDue)}
+            Bayar tagihan {formatShortDate(status.nextDue)}
           </p>
           <div className="mt-3 grid grid-cols-2 gap-3">
             <label className="block">
@@ -106,7 +107,7 @@ export function BillDetail({ bill, onClose, onEdit, onDelete, onPay, onDeletePay
             />
             Catat juga sebagai pengeluaran
           </label>
-          {error && <p className="mt-2 text-sm font-medium text-rose-600">⚠ {error}</p>}
+          {error && <p className="mt-2 text-sm font-medium text-rose-600">{error}</p>}
           <button type="submit" className={`mt-3 w-full ${primaryButtonClass}`}>
             Tandai Sudah Dibayar
           </button>
@@ -121,7 +122,7 @@ export function BillDetail({ bill, onClose, onEdit, onDelete, onPay, onDeletePay
           <ul className="mt-2 divide-y divide-slate-100 rounded-xl border border-slate-100">
             {payments.map((p) => (
               <li key={p.id} className="flex items-center gap-3 px-3 py-2.5 text-sm">
-                <span className="text-lg">✅</span>
+                <CircleCheck className="h-5 w-5 shrink-0 text-emerald-700" aria-hidden="true" />
                 <span className="min-w-0 flex-1">
                   <span className="block text-slate-700">Jatuh tempo {formatShortDate(p.dueDate)}</span>
                   <span className="block text-xs text-slate-500">
@@ -157,7 +158,7 @@ export function BillDetail({ bill, onClose, onEdit, onDelete, onPay, onDeletePay
           onClick={onEdit}
           className="flex-1 rounded-xl border border-slate-200 py-3 font-semibold text-slate-700 hover:bg-slate-50"
         >
-          ✏️ Edit
+          Edit
         </button>
       </div>
     </Sheet>

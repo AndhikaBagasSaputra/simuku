@@ -73,7 +73,7 @@ export function BackupPage({ data, onRestore }: Props) {
       {/* ===== Backup ===== */}
       <section className="space-y-4 rounded-2xl bg-surface p-5 shadow-sm">
         <div>
-          <h2 className="text-lg font-semibold text-slate-800">💾 Backup data</h2>
+          <h2 className="text-lg font-semibold text-slate-800">Backup data</h2>
           <p className="mt-1 text-sm text-slate-500">
             Simpan semua data ke satu file. File ini bisa dipakai untuk memulihkan data kalau browser dibersihkan atau
             pindah perangkat.
@@ -88,10 +88,10 @@ export function BackupPage({ data, onRestore }: Props) {
           {last ? (
             <>
               Terakhir backup: <b>{last.text}</b>
-              {needsBackup && <span className="block">⚠️ Sudah lebih dari sebulan, sebaiknya backup lagi.</span>}
+              {needsBackup && <span className="block">Sudah lebih dari sebulan, sebaiknya backup lagi.</span>}
             </>
           ) : totalCurrent > 0 ? (
-            <>⚠️ Kamu belum pernah backup. Data saat ini hanya tersimpan di browser ini.</>
+            <>Kamu belum pernah backup. Data saat ini hanya tersimpan di browser ini.</>
           ) : (
             <>Belum ada data untuk di-backup.</>
           )}
@@ -112,17 +112,17 @@ export function BackupPage({ data, onRestore }: Props) {
           disabled={totalCurrent === 0}
           className={`w-full ${primaryButtonClass}`}
         >
-          💾 Download Backup
+          Download Backup
         </button>
         <p className="text-xs text-slate-500">
-          💡 Simpan file backup di tempat aman, misalnya Google Drive atau kirim ke email sendiri.
+          Simpan file backup di tempat aman, misalnya Google Drive atau kirim ke email sendiri.
         </p>
       </section>
 
       {/* ===== Restore ===== */}
       <section className="space-y-4 rounded-2xl bg-surface p-5 shadow-sm">
         <div>
-          <h2 className="text-lg font-semibold text-slate-800">📂 Pulihkan dari backup</h2>
+          <h2 className="text-lg font-semibold text-slate-800">Pulihkan dari backup</h2>
           <p className="mt-1 text-sm text-slate-500">Pilih file backup (.json) yang pernah kamu download.</p>
         </div>
 
@@ -138,15 +138,15 @@ export function BackupPage({ data, onRestore }: Props) {
           onClick={() => inputRef.current?.click()}
           className="w-full rounded-xl border border-dashed border-slate-300 py-3 font-semibold text-slate-700 hover:bg-slate-50"
         >
-          📂 Pilih file backup
+          Pilih file backup
         </button>
 
-        {error && <p className="rounded-xl bg-rose-50 p-3 text-sm font-medium text-rose-700">⚠ {error}</p>}
+        {error && <p className="rounded-xl bg-rose-50 p-3 text-sm font-medium text-rose-700">{error}</p>}
 
         {pending && incoming && (
           <div className="space-y-4 rounded-xl border border-slate-200 p-4">
             <div className="text-sm">
-              <p className="truncate font-semibold text-slate-800">📄 {pending.name}</p>
+              <p className="truncate font-semibold text-slate-800">{pending.name}</p>
               {pending.file.exportedAt && (
                 <p className="text-slate-500">Dibuat {describeBackupDate(pending.file.exportedAt).text}</p>
               )}

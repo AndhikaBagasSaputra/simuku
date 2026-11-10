@@ -19,7 +19,7 @@ export function SplitResultView({ bill, calc }: Props) {
         <div key={s.participant.id} className="rounded-xl bg-slate-50 p-3">
           <div className="flex items-center justify-between gap-2">
             <span className="font-semibold text-slate-800">
-              👤 {s.participant.name}
+              {s.participant.name}
               {s.participant.id === bill.payerId && (
                 <span className="ml-2 rounded-full bg-emerald-100 px-2 py-0.5 text-xs text-emerald-700">
                   yang bayar

@@ -1,3 +1,4 @@
+import { ArrowDownLeft, Undo2 } from 'lucide-react'
 import { useState, type FormEvent } from 'react'
 import { getDebtStats } from '../../lib/debt'
 import { formatRupiah, formatShortDate, todayISO } from '../../lib/format'
@@ -21,7 +22,7 @@ interface Props {
 
 function buildReminderText(debt: Debt, paid: number, remaining: number) {
   const lines = [
-    `Halo ${debt.person} 👋`,
+    `Halo ${debt.person},`,
     `Mau mengingatkan soal hutang${debt.note ? ` (${debt.note})` : ''} tanggal ${formatShortDate(debt.date)}:`,
     '',
     `Total     : ${formatRupiah(debt.amount)}`,
@@ -29,7 +30,7 @@ function buildReminderText(debt: Debt, paid: number, remaining: number) {
     `Sisa      : ${formatRupiah(remaining)}`,
   ]
   if (debt.dueDate) lines.push(`Jatuh tempo: ${formatShortDate(debt.dueDate)}`)
-  lines.push('', 'Terima kasih 🙏')
+  lines.push('', 'Terima kasih.')
   return lines.join('\n')
 }
 
@@ -113,7 +114,7 @@ export function DebtDetail({
         </div>
 
         <p className="mt-3 text-xs text-slate-500">
-          📅 {formatShortDate(debt.date)}
+          {formatShortDate(debt.date)}
           {debt.dueDate && ` · Jatuh tempo ${formatShortDate(debt.dueDate)}`}
           {debt.note && ` · ${debt.note}`}
         </p>
@@ -126,7 +127,7 @@ export function DebtDetail({
           className="mt-3 flex w-full items-center justify-between rounded-xl border border-slate-200 px-3 py-2.5 text-left text-sm hover:bg-slate-50"
         >
           <span>
-            🧾 Dari split bill: <b>{splitBillTitle}</b>
+            Dari split bill: <b>{splitBillTitle}</b>
           </span>
           <span className="text-slate-400">›</span>
         </button>
@@ -136,7 +137,7 @@ export function DebtDetail({
       {stats.status === 'overpaid' && (
         <div className="mt-3 rounded-xl border border-sky-200 bg-sky-50 p-3 text-sm text-sky-800">
           <p>
-            ⚠️ {isOwedToMe ? `${debt.person} membayar` : 'Kamu membayar'} lebih{' '}
+            {isOwedToMe ? `${debt.person} membayar` : 'Kamu membayar'} lebih{' '}
             <b>{formatRupiah(stats.overpaid)}</b>.
           </p>
           <button
@@ -153,7 +154,7 @@ export function DebtDetail({
       {stats.remaining > 0 && (
         <form onSubmit={handlePayment} className="mt-4 rounded-2xl border border-slate-200 p-4">
           <p className="font-semibold text-slate-800">
-            {isOwedToMe ? '💵 Terima pembayaran' : '💸 Bayar hutang'}
+            {isOwedToMe ? 'Terima pembayaran' : 'Bayar hutang'}
           </p>
 
           <label className="mt-3 block">
@@ -169,7 +170,7 @@ export function DebtDetail({
           </button>
           {extra > 0 && (
             <p className="mt-2 text-xs text-sky-700">
-              ℹ️ Melebihi sisa. Akan tercatat lebih bayar {formatRupiah(extra)}.
+              Melebihi sisa. Akan tercatat lebih bayar {formatRupiah(extra)}.
             </p>
           )}
 
@@ -191,7 +192,7 @@ export function DebtDetail({
             </label>
           </div>
 
-          {error && <p className="mt-2 text-sm font-medium text-rose-600">⚠ {error}</p>}
+          {error && <p className="mt-2 text-sm font-medium text-rose-600">{error}</p>}
 
           <button type="submit" className={`mt-3 w-full ${primaryButtonClass}`}>
             Catat Pembayaran
@@ -208,7 +209,11 @@ export function DebtDetail({
           <ul className="mt-2 divide-y divide-slate-100 rounded-xl border border-slate-100">
             {payments.map((p) => (
               <li key={p.id} className="flex items-center gap-3 px-3 py-2.5 text-sm">
-                <span className="text-lg">{p.kind === 'refund' ? '↩️' : '💰'}</span>
+                {p.kind === 'refund' ? (
+                  <Undo2 className="h-5 w-5 shrink-0 text-sky-700" aria-hidden="true" />
+                ) : (
+                  <ArrowDownLeft className="h-5 w-5 shrink-0 text-emerald-700" aria-hidden="true" />
+                )}
                 <span className="min-w-0 flex-1">
                   <span className="block text-slate-700">
                     {p.kind === 'refund' ? 'Pengembalian' : 'Pembayaran'} · {formatShortDate(p.date)}
@@ -241,7 +246,7 @@ export function DebtDetail({
             onClick={handleCopy}
             className="w-full rounded-xl border border-emerald-200 py-3 font-semibold text-emerald-700 hover:bg-emerald-50"
           >
-            {copied ? '✅ Tersalin!' : '📋 Salin teks pengingat'}
+            {copied ? 'Tersalin!' : 'Salin teks pengingat'}
           </button>
         )}
         <button
@@ -257,7 +262,7 @@ export function DebtDetail({
           onClick={splitBillTitle && onOpenSplitBill ? onOpenSplitBill : onEdit}
           className="flex-1 rounded-xl border border-slate-200 py-3 font-semibold text-slate-700 hover:bg-slate-50"
         >
-          {splitBillTitle ? '✏️ Edit lewat split bill' : '✏️ Edit'}
+          {splitBillTitle ? 'Edit lewat split bill' : 'Edit'}
         </button>
       </div>
     </Sheet>

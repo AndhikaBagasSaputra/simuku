@@ -36,11 +36,11 @@ export function getDebtStats(debt: Debt): DebtStats {
   }
 }
 
-export const STATUS_INFO: Record<DebtStatus, { label: string; icon: string; className: string }> = {
-  unpaid: { label: 'Belum dibayar', icon: '⏳', className: 'bg-rose-50 text-rose-700' },
-  partial: { label: 'Dicicil', icon: '🔄', className: 'bg-amber-50 text-amber-700' },
-  paid: { label: 'Lunas', icon: '✅', className: 'bg-emerald-50 text-emerald-700' },
-  overpaid: { label: 'Lebih bayar', icon: '⚠️', className: 'bg-sky-50 text-sky-700' },
+export const STATUS_INFO: Record<DebtStatus, { label: string; className: string }> = {
+  unpaid: { label: 'Belum dibayar', className: 'bg-rose-50 text-rose-700' },
+  partial: { label: 'Dicicil', className: 'bg-amber-50 text-amber-700' },
+  paid: { label: 'Lunas', className: 'bg-emerald-50 text-emerald-700' },
+  overpaid: { label: 'Lebih bayar', className: 'bg-sky-50 text-sky-700' },
 }
 
 /** Status yang masih perlu ditindaklanjuti */

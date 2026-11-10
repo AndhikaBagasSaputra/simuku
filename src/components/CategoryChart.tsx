@@ -1,3 +1,4 @@
+import { segmentClass } from '../lib/ui'
 import { useState } from 'react'
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts'
 import { useTheme } from '../hooks/useTheme'
@@ -14,7 +15,6 @@ interface Props {
 interface Slice {
   id: string
   name: string
-  icon: string
   color: string
   value: number
   percent: number
@@ -42,9 +42,9 @@ export function CategoryChart({ transactions }: Props) {
 
   return (
     <section className="rounded-2xl bg-surface p-4 shadow-sm">
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="font-semibold text-slate-800">Per Kategori</h2>
-        <div className="flex rounded-lg bg-slate-100 p-0.5 text-xs font-semibold">
+        <div className="grid grid-cols-2 gap-1 rounded-xl bg-slate-100 p-1" role="group" aria-label="Jenis">
           {(
             [
               ['expense', 'Pengeluaran'],
@@ -55,9 +55,8 @@ export function CategoryChart({ transactions }: Props) {
               key={value}
               type="button"
               onClick={() => setType(value)}
-              className={`rounded-md px-2.5 py-1.5 transition ${
-                type === value ? 'bg-surface text-slate-800 shadow-sm' : 'text-slate-500'
-              }`}
+              aria-pressed={type === value}
+              className={`${segmentClass(type === value)} px-2.5`}
             >
               {label}
             </button>
@@ -98,7 +97,7 @@ export function CategoryChart({ transactions }: Props) {
                     return (
                       <div className="rounded-lg bg-gray-900 px-3 py-2 text-xs text-white shadow-lg ring-1 ring-white/15">
                         <p className="font-semibold">
-                          {slice.icon} {slice.name}
+                          {slice.name}
                         </p>
                         <p>
                           {formatRupiah(slice.value)} · {slice.percent.toFixed(1)}%
@@ -126,7 +125,7 @@ export function CategoryChart({ transactions }: Props) {
                     style={{ backgroundColor: s.color }}
                   />
                   <span className="flex-1 text-slate-700">
-                    {s.icon} {s.name}
+                    {s.name}
                   </span>
                   <span className="text-xs text-slate-500 tabular-nums">
                     {s.percent.toFixed(1)}%

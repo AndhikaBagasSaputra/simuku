@@ -1,3 +1,5 @@
+import { ReceiptText, SearchX } from 'lucide-react'
+import { EmptyIcon } from '../ui/EmptyIcon'
 import { useState } from 'react'
 import { formatRupiah, formatShortDate } from '../../lib/format'
 import { buildHaystack, matchesSearch } from '../../lib/search'
@@ -16,8 +18,8 @@ export function SplitBillsPage({ splitBills, onSelect }: Props) {
   if (splitBills.length === 0) {
     return (
       <div className="rounded-2xl bg-surface p-8 text-center shadow-sm">
-        <p className="text-4xl">🧾</p>
-        <p className="mt-2 font-medium text-slate-700">Belum ada split bill</p>
+        <EmptyIcon icon={ReceiptText} />
+        <p className="mt-3 font-medium text-slate-700">Belum ada split bill</p>
         <p className="mt-1 text-sm text-slate-500">
           Tekan tombol <b>+</b> untuk membagi tagihan bareng teman.
         </p>
@@ -47,8 +49,8 @@ export function SplitBillsPage({ splitBills, onSelect }: Props) {
 
       {list.length === 0 ? (
         <div className="rounded-2xl bg-surface p-8 text-center shadow-sm">
-          <p className="text-4xl">🔍</p>
-          <p className="mt-2 font-medium text-slate-700">Tidak ada yang cocok</p>
+          <EmptyIcon icon={SearchX} />
+          <p className="mt-3 font-medium text-slate-700">Tidak ada yang cocok</p>
           <p className="mt-1 text-sm text-slate-500">Coba kata kunci lain.</p>
         </div>
       ) : (

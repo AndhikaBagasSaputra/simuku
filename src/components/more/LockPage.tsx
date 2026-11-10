@@ -51,7 +51,7 @@ export function LockPage({ onNotify }: Props) {
         if (flow === 'disable') {
           lock.disable()
           close()
-          return onNotify('🔓 Kunci PIN dimatikan')
+          return onNotify('Kunci PIN dimatikan')
         }
         return setStep('new')
       }
@@ -65,7 +65,7 @@ export function LockPage({ onNotify }: Props) {
       }
       await lock.setPin(pin)
       close()
-      onNotify(flow === 'change' ? '🔒 PIN berhasil diubah' : '🔒 Kunci PIN aktif')
+      onNotify(flow === 'change' ? 'PIN berhasil diubah' : 'Kunci PIN aktif')
     } catch (e) {
       setError(e instanceof Error ? e.message : 'PIN tidak bisa disimpan')
     }
@@ -76,7 +76,7 @@ export function LockPage({ onNotify }: Props) {
       <section className="rounded-2xl bg-surface p-4 shadow-sm">
         <div className="flex items-center justify-between gap-3">
           <div className="min-w-0">
-            <p className="font-semibold text-slate-800">🔒 Kunci PIN</p>
+            <p className="font-semibold text-slate-800">Kunci PIN</p>
             <p className="text-sm text-slate-500">
               {lock.enabled
                 ? 'Aktif. Aplikasi meminta PIN setiap dibuka.'
@@ -120,7 +120,7 @@ export function LockPage({ onNotify }: Props) {
         <>
           <section className="rounded-2xl bg-surface p-4 shadow-sm">
             <label className="block">
-              <span className="font-semibold text-slate-800">⏱️ Kunci otomatis</span>
+              <span className="font-semibold text-slate-800">Kunci otomatis</span>
               <span className="block text-sm text-slate-500">
                 Terkunci lagi setelah aplikasi ditinggal atau tidak disentuh selama:
               </span>

@@ -179,7 +179,7 @@ export function SplitBillForm({ initial, defaultPaymentInfo, personSuggestions, 
             >
               {categories.map((c) => (
                 <option key={c.id} value={c.id}>
-                  {c.icon} {c.name}
+                  {c.name}
                 </option>
               ))}
             </select>
@@ -187,7 +187,7 @@ export function SplitBillForm({ initial, defaultPaymentInfo, personSuggestions, 
         </div>
 
         {/* Peserta */}
-        <Section title="👥 Siapa saja yang ikut?">
+        <Section title="Siapa saja yang ikut?">
           <div className="flex flex-wrap gap-2">
             {draft.participants.map((p) => (
               <span
@@ -242,7 +242,7 @@ export function SplitBillForm({ initial, defaultPaymentInfo, personSuggestions, 
         </Section>
 
         {/* Item */}
-        <Section title="🍽️ Item yang dibeli">
+        <Section title="Item yang dibeli">
           <div className="space-y-3">
             {draft.items.map((item, i) => (
               <SplitItemCard
@@ -269,7 +269,7 @@ export function SplitBillForm({ initial, defaultPaymentInfo, personSuggestions, 
         </Section>
 
         {/* Diskon */}
-        <Section title="🏷️ Diskon">
+        <Section title="Diskon">
           <div className="grid grid-cols-3 gap-1 rounded-xl bg-slate-100 p-1">
             {(
               [
@@ -323,13 +323,13 @@ export function SplitBillForm({ initial, defaultPaymentInfo, personSuggestions, 
 
           {draft.discount.type !== 'none' && (
             <p className="mt-2 text-xs text-slate-500">
-              💡 Diskon dibagi sesuai porsi belanja: yang pesan lebih banyak dapat potongan lebih besar.
+              Diskon dibagi sesuai porsi belanja: yang pesan lebih banyak dapat potongan lebih besar.
             </p>
           )}
         </Section>
 
         {/* Biaya lain */}
-        <Section title="🛵 Biaya lain (dibagi rata per orang)">
+        <Section title="Biaya lain (dibagi rata per orang)">
           {draft.fees.length > 0 && (
             <div className="space-y-2">
               {draft.fees.map((fee) => (
@@ -389,7 +389,7 @@ export function SplitBillForm({ initial, defaultPaymentInfo, personSuggestions, 
         </Section>
 
         {/* Pembayar */}
-        <Section title="💳 Siapa yang bayar dulu?">
+        <Section title="Siapa yang bayar dulu?">
           <div className="flex flex-wrap gap-2">
             {draft.participants.map((p) => {
               const selected = draft.payerId === p.id
@@ -416,7 +416,7 @@ export function SplitBillForm({ initial, defaultPaymentInfo, personSuggestions, 
           </div>
           {idlePeople.length > 0 && (
             <p className="mt-2 text-xs text-amber-700">
-              ⚠ Yang belum memilih item tidak bisa dipilih sebagai pembayar.
+              Yang belum memilih item tidak bisa dipilih sebagai pembayar.
             </p>
           )}
           <label className="mt-3 block">
@@ -432,25 +432,25 @@ export function SplitBillForm({ initial, defaultPaymentInfo, personSuggestions, 
           </label>
           <p className="mt-2 text-xs text-slate-500">
             {draft.payerId === ME_ID
-              ? '💡 Bagianmu masuk ke pengeluaran, bagian teman otomatis jadi piutang.'
-              : `💡 Bagianmu masuk ke pengeluaran sekaligus jadi hutang ke ${
+              ? 'Bagianmu masuk ke pengeluaran, bagian teman otomatis jadi piutang.'
+              : `Bagianmu masuk ke pengeluaran sekaligus jadi hutang ke ${
                   draft.participants.find((p) => p.id === draft.payerId)?.name
                 }.`}
           </p>
         </Section>
 
         {/* Hasil */}
-        <Section title="🧮 Hasil">
+        <Section title="Hasil">
           {calc.issues.length > 0 && (
             <ul className="mb-3 space-y-1 rounded-xl bg-amber-50 p-3 text-sm text-amber-800">
               {calc.issues.map((issue) => (
-                <li key={issue}>⚠ {issue}</li>
+                <li key={issue}>{issue}</li>
               ))}
             </ul>
           )}
           {idlePeople.length > 0 && (
             <div role="alert" className="mb-3 rounded-xl bg-amber-50 p-3 text-sm text-amber-800">
-              <p className="font-semibold">⚠ Ada yang belum memilih item</p>
+              <p className="font-semibold">Ada yang belum memilih item</p>
               <p className="mt-0.5 text-xs">Pilihkan item di atas, atau hapus dari daftar peserta.</p>
               <ul className="mt-2 space-y-1.5">
                 {idlePeople.map((p) => (
@@ -475,7 +475,7 @@ export function SplitBillForm({ initial, defaultPaymentInfo, personSuggestions, 
         </Section>
 
         <div className="sticky -bottom-5 -mx-5 mt-5 border-t border-slate-100 bg-surface px-5 pt-3 pb-5 lg:-bottom-7 lg:-mx-7 lg:px-7 lg:pb-7">
-          {error && <p className="mb-2 text-sm font-medium text-rose-600">⚠ {error}</p>}
+          {error && <p className="mb-2 text-sm font-medium text-rose-600">{error}</p>}
           <button type="submit" className={`w-full ${primaryButtonClass}`}>
             {initial ? 'Simpan Perubahan' : 'Simpan Split Bill'}
           </button>

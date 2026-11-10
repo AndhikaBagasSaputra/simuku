@@ -40,7 +40,7 @@ export function SplitBillDetail({ bill, debts, onClose, onEdit, onDelete, onOpen
   return (
     <Sheet title={bill.title} onClose={onClose}>
       <p className="-mt-2 mb-4 text-sm text-slate-500">
-        📅 {formatShortDate(bill.date)} · {category.icon} {category.name} · Dibayar {getPayerName(input)}
+        {formatShortDate(bill.date)} · {category.name} · Dibayar {getPayerName(input)}
       </p>
 
       <button
@@ -48,7 +48,7 @@ export function SplitBillDetail({ bill, debts, onClose, onEdit, onDelete, onOpen
         onClick={handleCopy}
         className="w-full rounded-xl bg-primary py-3 font-semibold text-white hover:bg-primary-hover"
       >
-        {copied ? '✅ Tersalin! Tinggal tempel ke WhatsApp' : '📋 Salin teks split bill'}
+        {copied ? 'Tersalin! Tinggal tempel ke WhatsApp' : 'Salin teks split bill'}
       </button>
 
       {linkedDebts.length > 0 && (
@@ -105,7 +105,7 @@ export function SplitBillDetail({ bill, debts, onClose, onEdit, onDelete, onOpen
           onClick={onEdit}
           className="flex-1 rounded-xl border border-slate-200 py-3 font-semibold text-slate-700 hover:bg-slate-50"
         >
-          ✏️ Edit
+          Edit
         </button>
       </div>
     </Sheet>

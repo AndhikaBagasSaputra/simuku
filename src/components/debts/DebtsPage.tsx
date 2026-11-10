@@ -1,3 +1,5 @@
+import { CircleCheck, Inbox, SearchX } from 'lucide-react'
+import { EmptyIcon } from '../ui/EmptyIcon'
 import { useState } from 'react'
 import { getDebtStats, isActive } from '../../lib/debt'
 import { formatRupiah, formatShortDate, todayISO } from '../../lib/format'
@@ -58,7 +60,7 @@ export function DebtsPage({ debts, direction, onDirectionChange, onSelect }: Pro
           }`}
         >
           <p className={`text-xs ${direction === 'owed_to_me' ? 'text-white/80' : 'text-slate-500'}`}>
-            💵 Piutang (orang ke kamu)
+            Piutang (orang ke kamu)
           </p>
           <p className="mt-1 text-lg font-bold">{formatRupiah(owedToMe)}</p>
         </button>
@@ -70,7 +72,7 @@ export function DebtsPage({ debts, direction, onDirectionChange, onSelect }: Pro
           }`}
         >
           <p className={`text-xs ${direction === 'i_owe' ? 'text-white/80' : 'text-slate-500'}`}>
-            🧾 Hutang kamu
+            Hutang kamu
           </p>
           <p className="mt-1 text-lg font-bold">{formatRupiah(iOwe)}</p>
         </button>
@@ -99,8 +101,8 @@ export function DebtsPage({ debts, direction, onDirectionChange, onSelect }: Pro
       {/* Daftar */}
       {list.length === 0 ? (
         <div className="rounded-2xl bg-surface p-8 text-center shadow-sm">
-          <p className="text-4xl">{query ? '🔍' : filter === 'done' ? '📭' : '🎉'}</p>
-          <p className="mt-2 font-medium text-slate-700">
+          <EmptyIcon icon={query ? SearchX : filter === 'done' ? Inbox : CircleCheck} />
+          <p className="mt-3 font-medium text-slate-700">
             {query ? 'Tidak ada yang cocok' : filter === 'active' ? 'Tidak ada yang belum lunas' : 'Belum ada data'}
           </p>
           <p className="mt-1 text-sm text-slate-500">
@@ -152,7 +154,7 @@ export function DebtsPage({ debts, direction, onDirectionChange, onSelect }: Pro
 
                   {overdue && (
                     <p className="mt-2 text-xs font-semibold text-rose-600">
-                      ⚠ Lewat jatuh tempo ({formatShortDate(debt.dueDate)})
+                      Lewat jatuh tempo ({formatShortDate(debt.dueDate)})
                     </p>
                   )}
                 </button>

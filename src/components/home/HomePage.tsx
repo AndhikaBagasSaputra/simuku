@@ -1,4 +1,4 @@
-import { BarChart3, List } from 'lucide-react'
+import { BarChart3, List, SearchX } from 'lucide-react'
 import { lazy, Suspense, useState } from 'react'
 import { getCategory } from '../../lib/categories'
 import { formatRupiah } from '../../lib/format'
@@ -6,7 +6,7 @@ import { getEndMonth, type Period } from '../../lib/period'
 import { buildHaystack, matchesSearch } from '../../lib/search'
 import { segmentClass } from '../../lib/ui'
 import type { RecurringBill, Transaction, TransactionType } from '../../types'
-import { UpcomingBillsCard } from '../bills/UpcomingBillsCard'
+import { UpcomingBillsCard, UpcomingBillsStrip } from '../bills/UpcomingBillsCard'
 import { PeriodPicker } from '../PeriodPicker'
 import { SummaryCard } from '../SummaryCard'
 import { TransactionList } from '../TransactionList'
@@ -90,7 +90,8 @@ export function HomePage(props: Props) {
             key={value}
             type="button"
             onClick={() => setTypeFilter(value)}
-            className={`rounded-full border px-3 py-1 text-xs font-semibold transition ${
+            aria-pressed={typeFilter === value}
+            className={`inline-flex min-h-9 items-center rounded-full border px-3.5 text-sm font-semibold transition pointer-coarse:min-h-11 ${
               typeFilter === value
                 ? 'border-primary bg-primary text-white'
                 : 'border-slate-200 bg-surface text-slate-600 hover:bg-slate-50'
@@ -99,7 +100,7 @@ export function HomePage(props: Props) {
             {label}
           </button>
         ))}
-        {!query && <span className="text-xs text-slate-400">Contoh: makan · 50000 · 12 nov</span>}
+        {!query && <span className="text-xs text-slate-500">Contoh: makan · 50000 · 12 nov</span>}
       </div>
 
       {isFiltering && (
@@ -123,8 +124,10 @@ export function HomePage(props: Props) {
 
       {isFiltering && results.length === 0 ? (
         <div className="rounded-2xl bg-surface p-8 text-center shadow-sm">
-          <p className="text-4xl">🔍</p>
-          <p className="mt-2 font-medium text-slate-700">Tidak ada yang cocok</p>
+          <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-slate-500">
+            <SearchX className="h-6 w-6" aria-hidden="true" />
+          </span>
+          <p className="mt-3 font-medium text-slate-700">Tidak ada yang cocok</p>
           <p className="mt-1 text-sm text-slate-500">Coba kata kunci lain atau ubah periodenya.</p>
         </div>
       ) : (
@@ -139,19 +142,24 @@ export function HomePage(props: Props) {
     </section>
   )
 
+  // Urutan beranda mengikuti tugas utama: catat -> lihat hari ini -> periode -> riwayat.
+  // Jarak lebar memisahkan kelompok, jarak rapat menyatukan isi satu kelompok.
+
   // ===== Desktop: dua kolom, riwayat & statistik tampil bersamaan =====
   if (isDesktop) {
     return (
       <div className="grid grid-cols-[minmax(0,1fr)_400px] items-start gap-6">
-        <div className="space-y-4">
+        <div className="space-y-6">
           <TodayCard transactions={props.transactions} />
-          <div className="rounded-2xl bg-surface p-2 shadow-sm">
-            <PeriodPicker period={period} onChange={onPeriodChange} />
+          <div className="space-y-2">
+            <div className="rounded-2xl bg-surface p-2 shadow-sm">
+              <PeriodPicker period={period} onChange={onPeriodChange} />
+            </div>
+            <SummaryCard transactions={periodTransactions} label={props.summaryLabel} />
           </div>
-          <SummaryCard transactions={periodTransactions} label={props.summaryLabel} />
           {history}
         </div>
-        <div className="space-y-4">
+        <div className="space-y-6">
           {billsCard}
           {statistics}
         </div>
@@ -159,22 +167,48 @@ export function HomePage(props: Props) {
     )
   }
 
-  // ===== HP: satu kolom dengan pilihan Riwayat / Statistik =====
+  // ===== HP: satu kolom. Pilihan Riwayat / Statistik menempel di atas isi yang diaturnya =====
+  const hasBills = props.bills.length > 0
   return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-1 rounded-xl bg-slate-200/70 p-1">
-        <button type="button" onClick={() => setView('riwayat')} className={`${segmentClass(view === 'riwayat')} flex items-center justify-center gap-1.5`}>
-          <List className="h-4 w-4" /> Riwayat
-        </button>
-        <button type="button" onClick={() => setView('statistik')} className={`${segmentClass(view === 'statistik')} flex items-center justify-center gap-1.5`}>
-          <BarChart3 className="h-4 w-4" /> Statistik
-        </button>
+    <div className="space-y-6">
+      {/* Sekarang: hari ini + tagihan yang perlu perhatian (satu baris) */}
+      <div className="space-y-2">
+        <TodayCard transactions={props.transactions} />
+        {hasBills && (
+          <UpcomingBillsStrip bills={props.bills} onSelect={props.onSelectBill} onSeeAll={props.onSeeAllBills} />
+        )}
       </div>
-      {billsCard}
-      <TodayCard transactions={props.transactions} />
-      <PeriodPicker period={period} onChange={onPeriodChange} />
-      <SummaryCard transactions={periodTransactions} label={props.summaryLabel} />
-      {view === 'riwayat' ? history : statistics}
+
+      {/* Periode yang sedang dilihat */}
+      <div className="space-y-1">
+        <PeriodPicker period={period} onChange={onPeriodChange} />
+        <SummaryCard transactions={periodTransactions} label={props.summaryLabel} />
+      </div>
+
+      <section className="space-y-3">
+        <div className="grid grid-cols-2 gap-1 rounded-xl bg-slate-200/70 p-1" role="group" aria-label="Tampilan">
+          <button
+            type="button"
+            onClick={() => setView('riwayat')}
+            aria-pressed={view === 'riwayat'}
+            className={`${segmentClass(view === 'riwayat')} flex items-center justify-center gap-1.5`}
+          >
+            <List className="h-4 w-4" aria-hidden="true" /> Riwayat
+          </button>
+          <button
+            type="button"
+            onClick={() => setView('statistik')}
+            aria-pressed={view === 'statistik'}
+            className={`${segmentClass(view === 'statistik')} flex items-center justify-center gap-1.5`}
+          >
+            <BarChart3 className="h-4 w-4" aria-hidden="true" /> Statistik
+          </button>
+        </div>
+        {view === 'riwayat' ? history : statistics}
+      </section>
+
+      {/* Ajakan mencatat tagihan tidak mendesak, jadi letaknya setelah riwayat */}
+      {!hasBills && billsCard}
     </div>
   )
 }

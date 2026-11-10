@@ -142,22 +142,22 @@ export function describeDiscount(discount: SplitDiscount) {
 /** Teks siap tempel ke WhatsApp */
 export function buildSplitText(bill: SplitBillInput, calc: SplitCalculation) {
   const lines: string[] = [
-    `🧾 Split Bill – ${bill.title}`,
-    `📅 ${formatShortDate(bill.date)} · Dibayar oleh: ${getPayerName(bill)}`,
+    `Split Bill: ${bill.title}`,
+    `${formatShortDate(bill.date)} · Dibayar oleh ${getPayerName(bill)}`,
   ]
 
   for (const s of calc.shares) {
-    lines.push('', `👤 ${s.participant.name}`)
+    lines.push('', s.participant.name)
     for (const l of s.lines) {
       lines.push(`  ${l.itemName}  ${describeLineQty(l)} = ${formatRupiah(l.amount)}`)
     }
     const parts = [`Subtotal ${formatRupiah(s.subtotal)}`]
     if (calc.discountTotal > 0) parts.push(`Diskon -${formatRupiah(s.discount)}`)
     if (calc.feesTotal > 0) parts.push(`Biaya lain +${formatRupiah(s.fee)}`)
-    lines.push(`  ${parts.join(' · ')}`, `  ➜ ${formatRupiah(s.total)}`)
+    lines.push(`  ${parts.join(' · ')}`, `  Total: ${formatRupiah(s.total)}`)
   }
 
-  lines.push('', `Total belanja : ${formatRupiah(calc.itemsTotal)}`)
+  lines.push('', `Total belanja: ${formatRupiah(calc.itemsTotal)}`)
   if (calc.discountTotal > 0) {
     lines.push(`${describeDiscount(bill.discount)}: -${formatRupiah(calc.discountTotal)}`)
   }
@@ -165,9 +165,9 @@ export function buildSplitText(bill: SplitBillInput, calc: SplitCalculation) {
     const fees = bill.fees.map((f) => `${f.name} ${formatRupiah(f.amount)}`).join(' + ')
     lines.push(`${fees} (rata ${formatRupiah(calc.feePerPerson)}/org)`)
   }
-  lines.push(`TOTAL BAYAR   : ${formatRupiah(calc.grandTotal)}`)
+  lines.push(`TOTAL BAYAR: ${formatRupiah(calc.grandTotal)}`)
 
-  if (bill.paymentInfo.trim()) lines.push('', `Transfer ke: ${bill.paymentInfo.trim()} 🙏`)
+  if (bill.paymentInfo.trim()) lines.push('', `Transfer ke: ${bill.paymentInfo.trim()}`)
   return lines.join('\n')
 }
 

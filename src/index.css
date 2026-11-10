@@ -8,9 +8,10 @@
 
   /* Token bermakna (bukan warna mentah) supaya mudah diganti per tema */
   --color-surface: #ffffff; /* latar kartu & panel */
-  --color-primary: #059669; /* tombol utama */
-  --color-primary-hover: #047857;
-  --color-primary-active: #065f46;
+  /* Hijau utama cukup tua supaya teks putih kecil di atasnya tetap terbaca (5,5:1) */
+  --color-primary: #047857; /* tombol utama & kartu Sisa */
+  --color-primary-hover: #065f46;
+  --color-primary-active: #064e3b;
 }
 
 body {

@@ -78,7 +78,7 @@ export function TrendChart({ transactions, month }: Props) {
               <th className="py-1.5 font-medium">Bulan</th>
               <th className="py-1.5 text-right font-medium">Masuk</th>
               <th className="py-1.5 text-right font-medium">Keluar</th>
-              <th className="py-1.5 text-right font-medium">Selisih</th>
+              <th className="py-1.5 text-right font-medium">Sisa</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
@@ -127,10 +127,10 @@ export function TrendChart({ transactions, month }: Props) {
                   return (
                     <div className="rounded-lg bg-gray-900 px-3 py-2 text-xs text-white shadow-lg ring-1 ring-white/15">
                       <p className="mb-1 font-semibold">{formatMonth(row.month)}</p>
-                      <p>⬇ Pemasukan: {formatRupiah(row.income)}</p>
-                      <p>⬆ Pengeluaran: {formatRupiah(row.expense)}</p>
+                      <p>Masuk: +{formatRupiah(row.income)}</p>
+                      <p>Keluar: −{formatRupiah(row.expense)}</p>
                       <p className="mt-1 border-t border-white/20 pt-1 font-semibold">
-                        Selisih: {diff < 0 ? '-' : ''}
+                        Sisa: {diff < 0 ? '−' : ''}
                         {formatRupiah(Math.abs(diff))}
                       </p>
                     </div>

@@ -56,9 +56,9 @@ import type {
 type FormState<T> = null | 'new' | T
 
 function summaryLabel(period: Period) {
-  if (period.preset === 'month') return 'Selisih bulan ini'
-  if (period.preset === 'all') return 'Selisih keseluruhan'
-  return 'Selisih periode ini'
+  if (period.preset === 'month') return 'Sisa bulan ini'
+  if (period.preset === 'all') return 'Sisa keseluruhan'
+  return 'Sisa periode ini'
 }
 
 function App() {
@@ -139,18 +139,18 @@ function App() {
       label: 'Batalkan',
       onClick: () => {
         replaceAllData(snapshot)
-        showToast('↩️ Dibatalkan, data dikembalikan')
+        showToast('Dibatalkan, data dikembalikan')
       },
     })
   }
 
   function deleteWithUndo(message: string, action: () => void) {
-    withUndo(`🗑️ ${message}`, action)
+    withUndo(message, action)
   }
 
   function handleRestore(data: BackupData, mode: RestoreMode) {
     const next = mode === 'replace' ? data : mergeData(allData, data)
-    withUndo('📂 Data berhasil dipulihkan dari backup', () => replaceAllData(next))
+    withUndo('Data berhasil dipulihkan dari backup', () => replaceAllData(next))
   }
 
   // Transaksi dalam periode terpilih, terbaru di atas
@@ -187,7 +187,7 @@ function App() {
     setTransactionForm(null)
     // Periode tidak diubah otomatis. Kalau transaksi di luar periode, kasih tahu.
     if (!isInRange(input.date, range)) {
-      showToast(`✅ Tersimpan (${formatShortDate(input.date)}), di luar periode ini`, {
+      showToast(`Tersimpan (${formatShortDate(input.date)}), di luar periode ini`, {
         label: 'Lihat',
         onClick: () => {
           setPeriod({ ...period, preset: 'month', month: toMonthKey(input.date) })
@@ -309,7 +309,7 @@ function App() {
       <Sidebar page={page} onNavigate={setPage} onAdd={info.addLabel ? handleAdd : undefined} billsBadge={billsNeedAttention} />
 
       <div className="lg:pl-64">
-        <main className="mx-auto max-w-md space-y-4 px-4 pt-6 pb-28 lg:max-w-6xl lg:space-y-6 lg:px-8 lg:pt-8 lg:pb-12">
+        <main className="mx-auto max-w-md space-y-4 px-4 pt-6 pb-28 md:max-w-2xl md:px-6 lg:max-w-6xl lg:space-y-6 lg:px-8 lg:pt-8 lg:pb-12">
           <header className="flex items-end justify-between gap-4">
             <div className="min-w-0">
               {showBack && (
@@ -322,9 +322,17 @@ function App() {
                 </button>
               )}
               <h1 className="text-2xl font-bold tracking-tight text-slate-800 lg:text-3xl">
-                {page === 'transaksi' && !isDesktop ? '💰 Simuku' : info.title}
+                {page === 'transaksi' && !isDesktop ? (
+                  <span className="flex items-center gap-2">
+                    <img src="/icon.svg" alt="" className="h-8 w-8" />
+                    Simuku
+                  </span>
+                ) : (
+                  info.title
+                )}
               </h1>
-              <p className="text-sm text-slate-500">{info.subtitle}</p>
+              {/* Di beranda HP subjudul disembunyikan supaya riwayat lebih cepat terlihat */}
+              {!(page === 'transaksi' && !isDesktop) && <p className="text-sm text-slate-500">{info.subtitle}</p>}
             </div>
             {/* Di desktop, pilihan tema ada di sidebar */}
             {!isDesktop && <ThemeQuickButton />}

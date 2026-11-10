@@ -17,20 +17,20 @@ export const CHART_COLORS = [
 
 export const CATEGORIES: Category[] = [
   // Pengeluaran
-  { id: 'makan', name: 'Makan & Minum', icon: '🍔', type: 'expense', color: CHART_COLORS[0] },
-  { id: 'transportasi', name: 'Transportasi', icon: '🚗', type: 'expense', color: CHART_COLORS[1] },
-  { id: 'belanja', name: 'Belanja', icon: '🛍️', type: 'expense', color: CHART_COLORS[2] },
-  { id: 'tagihan', name: 'Tagihan', icon: '🧾', type: 'expense', color: CHART_COLORS[3] },
-  { id: 'hiburan', name: 'Hiburan', icon: '🎮', type: 'expense', color: CHART_COLORS[4] },
-  { id: 'kesehatan', name: 'Kesehatan', icon: '💊', type: 'expense', color: CHART_COLORS[5] },
-  { id: 'pendidikan', name: 'Pendidikan', icon: '📚', type: 'expense', color: CHART_COLORS[6] },
-  { id: 'lainnya-keluar', name: 'Lainnya', icon: '📦', type: 'expense', color: CHART_COLORS[7] },
+  { id: 'makan', name: 'Makan & Minum', type: 'expense', color: CHART_COLORS[0] },
+  { id: 'transportasi', name: 'Transportasi', type: 'expense', color: CHART_COLORS[1] },
+  { id: 'belanja', name: 'Belanja', type: 'expense', color: CHART_COLORS[2] },
+  { id: 'tagihan', name: 'Tagihan', type: 'expense', color: CHART_COLORS[3] },
+  { id: 'hiburan', name: 'Hiburan', type: 'expense', color: CHART_COLORS[4] },
+  { id: 'kesehatan', name: 'Kesehatan', type: 'expense', color: CHART_COLORS[5] },
+  { id: 'pendidikan', name: 'Pendidikan', type: 'expense', color: CHART_COLORS[6] },
+  { id: 'lainnya-keluar', name: 'Lainnya', type: 'expense', color: CHART_COLORS[7] },
   // Pemasukan
-  { id: 'gaji', name: 'Gaji', icon: '💼', type: 'income', color: CHART_COLORS[0] },
-  { id: 'bonus', name: 'Bonus', icon: '🎁', type: 'income', color: CHART_COLORS[1] },
-  { id: 'freelance', name: 'Freelance', icon: '💻', type: 'income', color: CHART_COLORS[2] },
-  { id: 'investasi', name: 'Investasi', icon: '📈', type: 'income', color: CHART_COLORS[3] },
-  { id: 'lainnya-masuk', name: 'Lainnya', icon: '💰', type: 'income', color: CHART_COLORS[4] },
+  { id: 'gaji', name: 'Gaji', type: 'income', color: CHART_COLORS[0] },
+  { id: 'bonus', name: 'Bonus', type: 'income', color: CHART_COLORS[1] },
+  { id: 'freelance', name: 'Freelance', type: 'income', color: CHART_COLORS[2] },
+  { id: 'investasi', name: 'Investasi', type: 'income', color: CHART_COLORS[3] },
+  { id: 'lainnya-masuk', name: 'Lainnya', type: 'income', color: CHART_COLORS[4] },
 ]
 
 export function getCategoriesByType(type: TransactionType) {
@@ -42,7 +42,7 @@ export function getCategory(id: string): Category {
     CATEGORIES.find((c) => c.id === id) ?? {
       id,
       name: 'Tanpa kategori',
-      icon: '❔',
+     
       type: 'expense',
       color: '#898781',
     }

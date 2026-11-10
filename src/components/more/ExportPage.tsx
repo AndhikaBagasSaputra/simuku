@@ -24,18 +24,18 @@ export function ExportPage({ data }: Props) {
     setMessage('')
     try {
       await downloadExcel({ ...data, transactions }, today, `simuku_${suffix}.xlsx`)
-      setMessage('✅ File Excel berhasil di-download')
+      setMessage('File Excel berhasil di-download')
     } catch {
-      setMessage('⚠ Gagal membuat file Excel. Coba lagi.')
+      setMessage('Gagal membuat file Excel. Coba lagi.')
     } finally {
       setBusy(false)
     }
   }
 
   function handleCsv() {
-    if (transactions.length === 0) return setMessage('⚠ Belum ada transaksi di periode ini')
+    if (transactions.length === 0) return setMessage('Belum ada transaksi di periode ini')
     downloadCsv(transactionRows(transactions), `transaksi_${suffix}.csv`)
-    setMessage('✅ File CSV berhasil di-download')
+    setMessage('File CSV berhasil di-download')
   }
 
   const counts = [
@@ -71,7 +71,7 @@ export function ExportPage({ data }: Props) {
       </div>
 
       <button type="button" onClick={handleExcel} disabled={busy} className={`w-full ${primaryButtonClass}`}>
-        {busy ? 'Menyiapkan file…' : '📊 Download Excel (.xlsx)'}
+        {busy ? 'Menyiapkan file…' : 'Download Excel (.xlsx)'}
       </button>
       <p className="-mt-2 text-center text-xs text-slate-500">
         Berisi semua data, satu sheet per jenis (transaksi, hutang, split bill, tabungan, tagihan).
@@ -82,7 +82,7 @@ export function ExportPage({ data }: Props) {
         onClick={handleCsv}
         className="w-full rounded-xl border border-slate-200 bg-surface py-3 font-semibold text-slate-700 hover:bg-slate-50"
       >
-        📄 Download CSV (transaksi)
+        Download CSV (transaksi)
       </button>
 
       {message && <p className="text-center text-sm font-medium text-slate-700">{message}</p>}
