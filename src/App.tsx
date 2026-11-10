@@ -13,6 +13,7 @@ import { Sidebar } from './components/layout/Sidebar'
 import { BackupPage, type RestoreMode } from './components/more/BackupPage'
 import { UpdatePrompt } from './components/pwa/UpdatePrompt'
 import { ExportPage } from './components/more/ExportPage'
+import { LockPage } from './components/more/LockPage'
 import { MorePage } from './components/more/MorePage'
 import { SavingsDetail } from './components/savings/SavingsDetail'
 import { SavingsForm } from './components/savings/SavingsForm'
@@ -300,7 +301,7 @@ function App() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <Sidebar page={page} onNavigate={setPage} onAdd={handleAdd} billsBadge={billsNeedAttention} />
+      <Sidebar page={page} onNavigate={setPage} onAdd={info.addLabel ? handleAdd : undefined} billsBadge={billsNeedAttention} />
 
       <div className="lg:pl-64">
         <main className="mx-auto max-w-md space-y-4 px-4 pt-6 pb-28 lg:max-w-6xl lg:space-y-6 lg:px-8 lg:pt-8 lg:pb-12">
@@ -358,13 +359,14 @@ function App() {
           {page === 'tagihan' && <BillsPage bills={bills} onSelect={(b) => setSelectedBillId(b.id)} />}
           {page === 'ekspor' && <ExportPage data={allData} />}
           {page === 'backup' && <BackupPage data={allData} onRestore={handleRestore} />}
+          {page === 'keamanan' && <LockPage onNotify={showToast} />}
         </main>
       </div>
 
       <Toast toast={toast} onClose={() => setToast(null)} />
       <UpdatePrompt />
 
-      <BottomNav page={page} onNavigate={setPage} onAdd={handleAdd} moreBadge={billsNeedAttention} />
+      <BottomNav page={page} onNavigate={setPage} onAdd={info.addLabel ? handleAdd : undefined} moreBadge={billsNeedAttention} />
 
       {/* ===== Panel-panel. key diberi awalan supaya tidak bentrok antar panel ===== */}
 

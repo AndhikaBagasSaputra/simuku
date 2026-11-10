@@ -4,7 +4,8 @@ import { BOTTOM_LEFT, BOTTOM_RIGHT, MORE_PAGES, type NavItem, type PageKey } fro
 interface Props {
   page: PageKey
   onNavigate: (page: PageKey) => void
-  onAdd: () => void
+  /** Kosong = halaman ini tidak punya tombol tambah */
+  onAdd?: () => void
   /** Angka kecil di ikon Lainnya (misalnya tagihan yang perlu dibayar) */
   moreBadge?: number
 }
@@ -39,14 +40,16 @@ export function BottomNav({ page, onNavigate, onAdd, moreBadge = 0 }: Props) {
       <div className="mx-auto flex max-w-md items-center px-2 pb-[env(safe-area-inset-bottom)]">
         {BOTTOM_LEFT.map(renderTab)}
 
-        <button
-          type="button"
-          onClick={onAdd}
-          aria-label="Tambah"
-          className="-mt-6 mx-1 flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-primary text-white shadow-lg hover:bg-primary-hover active:bg-primary-active"
-        >
-          <Plus className="h-7 w-7" strokeWidth={2.5} />
-        </button>
+        {onAdd && (
+          <button
+            type="button"
+            onClick={onAdd}
+            aria-label="Tambah"
+            className="-mt-6 mx-1 flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-primary text-white shadow-lg hover:bg-primary-hover active:bg-primary-active"
+          >
+            <Plus className="h-7 w-7" strokeWidth={2.5} />
+          </button>
+        )}
 
         {BOTTOM_RIGHT.map(renderTab)}
       </div>

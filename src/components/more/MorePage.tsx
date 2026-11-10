@@ -1,3 +1,4 @@
+import { useAppLock } from '../../hooks/useAppLock'
 import { getLastBackup } from '../../lib/backup'
 import { formatRupiah, formatShortDate, todayISO } from '../../lib/format'
 import { getBillStatus, isAttention } from '../../lib/recurring'
@@ -18,6 +19,7 @@ export function MorePage({ goals, bills, onOpen }: Props) {
   const saved = goals.reduce((sum, g) => sum + getSavingsStats(g, today).saved, 0)
   const attention = bills.filter((b) => isAttention(getBillStatus(b, today).state)).length
   const lastBackup = getLastBackup()
+  const lock = useAppLock()
 
   const items: { view: PageKey; icon: string; title: string; subtitle: string; badge?: string }[] = [
     {
@@ -40,6 +42,12 @@ export function MorePage({ goals, bills, onOpen }: Props) {
       title: 'Backup & Restore',
       subtitle: lastBackup ? `Terakhir backup ${formatShortDate(lastBackup.slice(0, 10))}` : 'Belum pernah backup',
       badge: !lastBackup ? 'Disarankan' : undefined,
+    },
+    {
+      view: 'keamanan',
+      icon: '🔒',
+      title: 'Kunci Aplikasi',
+      subtitle: lock.enabled ? 'Kunci PIN aktif' : 'Lindungi aplikasi dengan PIN',
     },
   ]
 

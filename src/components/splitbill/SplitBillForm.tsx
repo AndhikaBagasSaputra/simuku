@@ -55,6 +55,13 @@ export function SplitBillForm({ initial, defaultPaymentInfo, personSuggestions, 
 
   const calc = calculateSplit(draft)
   const categories = getCategoriesByType('expense')
+  // Teman yang ada di daftar tapi tidak kebagian item apa pun.
+  // Mereka harus dipilihkan item atau dihapus, dan tidak bisa dipilih sebagai pembayar.
+  // "Saya" boleh tanpa item (misalnya cuma menalangi).
+  const idlePeople = draft.participants.filter(
+    (p) => p.id !== ME_ID && !calc.shares.some((s) => s.participant.id === p.id),
+  )
+  const idleIds = new Set(idlePeople.map((p) => p.id))
 
   function update(patch: Partial<SplitBillInput>) {
     setDraft((d) => ({ ...d, ...patch }))
@@ -114,6 +121,11 @@ export function SplitBillForm({ initial, defaultPaymentInfo, personSuggestions, 
       return setError('Lengkapi nama & harga semua item')
     }
     if (calc.issues.length) return setError(calc.issues[0])
+    if (idlePeople.length) {
+      return setError(
+        `${idlePeople.map((p) => p.name).join(', ')} belum memilih item. Pilihkan item atau hapus dari daftar.`,
+      )
+    }
     if (draft.discount.type === 'percent' && draft.discount.value <= 0) {
       return setError('Isi persen diskon, atau pilih "Tanpa"')
     }
@@ -379,22 +391,34 @@ export function SplitBillForm({ initial, defaultPaymentInfo, personSuggestions, 
         {/* Pembayar */}
         <Section title="💳 Siapa yang bayar dulu?">
           <div className="flex flex-wrap gap-2">
-            {draft.participants.map((p) => (
-              <button
-                key={p.id}
-                type="button"
-                onClick={() => update({ payerId: p.id })}
-                className={`rounded-full border px-3 py-1.5 text-sm font-medium ${
-                  draft.payerId === p.id
-                    ? 'border-emerald-500 bg-emerald-50 text-emerald-700'
-                    : 'border-slate-200 text-slate-600'
-                }`}
-              >
-                {draft.payerId === p.id ? '✓ ' : ''}
-                {p.name}
-              </button>
-            ))}
+            {draft.participants.map((p) => {
+              const selected = draft.payerId === p.id
+              // Yang belum memilih item tidak bisa dipilih sebagai pembayar
+              const blocked = idleIds.has(p.id) && !selected
+              return (
+                <button
+                  key={p.id}
+                  type="button"
+                  disabled={blocked}
+                  title={blocked ? `${p.name} belum memilih item` : undefined}
+                  onClick={() => update({ payerId: p.id })}
+                  className={`rounded-full border px-3 py-1.5 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-40 ${
+                    selected
+                      ? 'border-emerald-500 bg-emerald-50 text-emerald-700'
+                      : 'border-slate-200 text-slate-600'
+                  }`}
+                >
+                  {selected ? '✓ ' : ''}
+                  {p.name}
+                </button>
+              )
+            })}
           </div>
+          {idlePeople.length > 0 && (
+            <p className="mt-2 text-xs text-amber-700">
+              ⚠ Yang belum memilih item tidak bisa dipilih sebagai pembayar.
+            </p>
+          )}
           <label className="mt-3 block">
             <span className={labelClass}>Info transfer (opsional)</span>
             <input
@@ -423,6 +447,29 @@ export function SplitBillForm({ initial, defaultPaymentInfo, personSuggestions, 
                 <li key={issue}>⚠ {issue}</li>
               ))}
             </ul>
+          )}
+          {idlePeople.length > 0 && (
+            <div role="alert" className="mb-3 rounded-xl bg-amber-50 p-3 text-sm text-amber-800">
+              <p className="font-semibold">⚠ Ada yang belum memilih item</p>
+              <p className="mt-0.5 text-xs">Pilihkan item di atas, atau hapus dari daftar peserta.</p>
+              <ul className="mt-2 space-y-1.5">
+                {idlePeople.map((p) => (
+                  <li key={p.id} className="flex items-center justify-between gap-2">
+                    <span className="min-w-0 truncate font-medium">{p.name}</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        removePerson(p.id)
+                        setError('')
+                      }}
+                      className="shrink-0 rounded-lg border border-amber-200 px-2.5 py-1 text-xs font-semibold text-amber-900 hover:bg-amber-100"
+                    >
+                      Hapus
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
           )}
           <SplitResultView bill={draft} calc={calc} />
         </Section>

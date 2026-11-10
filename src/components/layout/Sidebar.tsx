@@ -6,7 +6,8 @@ import { PAGE_INFO, SIDEBAR_ITEMS, type PageKey } from './navigation'
 interface Props {
   page: PageKey
   onNavigate: (page: PageKey) => void
-  onAdd: () => void
+  /** Kosong = halaman ini tidak punya tombol tambah */
+  onAdd?: () => void
   billsBadge: number
 }
 
@@ -22,18 +23,21 @@ export function Sidebar({ page, onNavigate, onAdd, billsBadge }: Props) {
         </div>
       </div>
 
-      <div className="px-4">
-        <button
-          type="button"
-          onClick={onAdd}
-          className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-primary-hover active:bg-primary-active"
-        >
-          <Plus className="h-4 w-4" />
-          {PAGE_INFO[page].addLabel}
-        </button>
+      {/* Tempatnya tetap ada walau tombol disembunyikan, supaya menu di bawahnya tidak loncat */}
+      <div className="mb-6 h-10 px-4">
+        {onAdd && (
+          <button
+            type="button"
+            onClick={onAdd}
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-primary-hover active:bg-primary-active"
+          >
+            <Plus className="h-4 w-4" />
+            {PAGE_INFO[page].addLabel}
+          </button>
+        )}
       </div>
 
-      <nav className="mt-6 flex-1 space-y-1 px-3" aria-label="Menu utama">
+      <nav className="flex-1 space-y-1 px-3" aria-label="Menu utama">
         {SIDEBAR_ITEMS.map(({ key, label, icon: Icon }) => {
           const active = page === key
           return (

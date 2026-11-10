@@ -18,3 +18,17 @@ export function saveToStorage(key: string, value: unknown) {
     // Penyimpanan browser penuh / diblokir: abaikan
   }
 }
+
+/** Semua kunci penyimpanan yang diawali teks tertentu */
+export function storageKeys(prefix: string) {
+  const keys: string[] = []
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i)
+      if (key?.startsWith(prefix)) keys.push(key)
+    }
+  } catch {
+    // penyimpanan diblokir: anggap kosong
+  }
+  return keys
+}

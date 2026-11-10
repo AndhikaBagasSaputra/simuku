@@ -11,6 +11,7 @@ import { PeriodPicker } from '../PeriodPicker'
 import { SummaryCard } from '../SummaryCard'
 import { TransactionList } from '../TransactionList'
 import { SearchBar } from '../ui/SearchBar'
+import { TodayCard } from './TodayCard'
 
 const StatisticsPage = lazy(() => import('../StatisticsPage'))
 
@@ -127,7 +128,13 @@ export function HomePage(props: Props) {
           <p className="mt-1 text-sm text-slate-500">Coba kata kunci lain atau ubah periodenya.</p>
         </div>
       ) : (
-        <TransactionList transactions={results} onSelect={props.onSelectTransaction} />
+        <TransactionList
+          // Ganti periode / pencarian = mulai lagi dari halaman 1
+          key={`${JSON.stringify(period)}|${query}|${typeFilter}`}
+          transactions={results}
+          onSelect={props.onSelectTransaction}
+          expandAll={isFiltering}
+        />
       )}
     </section>
   )
@@ -137,6 +144,7 @@ export function HomePage(props: Props) {
     return (
       <div className="grid grid-cols-[minmax(0,1fr)_400px] items-start gap-6">
         <div className="space-y-4">
+          <TodayCard transactions={props.transactions} />
           <div className="rounded-2xl bg-surface p-2 shadow-sm">
             <PeriodPicker period={period} onChange={onPeriodChange} />
           </div>
@@ -163,6 +171,7 @@ export function HomePage(props: Props) {
         </button>
       </div>
       {billsCard}
+      <TodayCard transactions={props.transactions} />
       <PeriodPicker period={period} onChange={onPeriodChange} />
       <SummaryCard transactions={periodTransactions} label={props.summaryLabel} />
       {view === 'riwayat' ? history : statistics}
