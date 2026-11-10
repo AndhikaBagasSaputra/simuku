@@ -53,7 +53,7 @@ export function Sidebar({ page, onNavigate, onAdd, billsBadge }: Props) {
               <Icon className="h-5 w-5 shrink-0" strokeWidth={active ? 2.25 : 1.75} />
               <span className="flex-1 text-left">{label}</span>
               {key === 'tagihan' && billsBadge > 0 && (
-                <span className="rounded-full bg-rose-500 px-2 py-0.5 text-xs font-bold text-white">{billsBadge}</span>
+                <span className="rounded-full bg-alert px-2 py-0.5 text-xs font-bold text-white">{billsBadge}</span>
               )}
             </button>
           )

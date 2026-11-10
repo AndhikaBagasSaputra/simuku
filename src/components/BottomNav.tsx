@@ -27,7 +27,7 @@ export function BottomNav({ page, onNavigate, onAdd, moreBadge = 0 }: Props) {
         <Icon className="h-6 w-6" strokeWidth={active ? 2.25 : 1.75} />
         {label}
         {key === 'lainnya' && moreBadge > 0 && (
-          <span className="absolute top-1 right-1/2 translate-x-5 rounded-full bg-rose-500 px-1.5 text-[10px] font-bold text-white">
+          <span className="absolute top-1 right-1/2 translate-x-5 rounded-full bg-alert px-1.5 text-[10px] font-bold text-white">
             {moreBadge}
           </span>
         )}

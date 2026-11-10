@@ -12,6 +12,8 @@
   --color-primary: #047857; /* tombol utama & kartu Sisa */
   --color-primary-hover: #065f46;
   --color-primary-active: #064e3b;
+  /* Merah peringatan yang sama di tema terang & gelap (teks putih di atasnya 6,3:1, atau dia di atas putih) */
+  --color-alert: #be123c;
 }
 
 body {

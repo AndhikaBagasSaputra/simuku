@@ -23,7 +23,7 @@ export function SummaryCard({ transactions, label = 'Sisa bulan ini' }: Props) {
         <h2 className="text-sm font-medium">{label}</h2>
         {/* Saat minus kartu tetap hijau; tandanya label terang ini, bukan teks merah di atas hijau */}
         {minus && (
-          <span className="rounded-full bg-white px-2.5 py-0.5 text-xs font-semibold text-rose-700">
+          <span className="rounded-full bg-white px-2.5 py-0.5 text-xs font-semibold text-alert">
             Pengeluaran melebihi pemasukan
           </span>
         )}

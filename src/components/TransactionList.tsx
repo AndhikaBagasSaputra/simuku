@@ -80,7 +80,7 @@ export function TransactionList({ transactions, onSelect, expandAll = false }: P
                   <span className="block text-xs text-slate-500">{items.length} transaksi</span>
                 </span>
                 <span className="shrink-0 text-right text-xs font-semibold">
-                  {income > 0 && <span className="block text-emerald-600">+{formatRupiah(income)}</span>}
+                  {income > 0 && <span className="block text-emerald-700">+{formatRupiah(income)}</span>}
                   {expense > 0 && <span className="block text-rose-600">-{formatRupiah(expense)}</span>}
                 </span>
                 {!expandAll && (
@@ -121,7 +121,7 @@ export function TransactionList({ transactions, onSelect, expandAll = false }: P
                           {t.note && <span className="block truncate text-sm text-slate-500">{t.note}</span>}
                         </span>
                         <span
-                          className={`shrink-0 font-semibold ${isIncome ? 'text-emerald-600' : 'text-rose-600'}`}
+                          className={`shrink-0 font-semibold ${isIncome ? 'text-emerald-700' : 'text-rose-600'}`}
                         >
                           {isIncome ? '+' : '-'}
                           {formatRupiah(t.amount)}

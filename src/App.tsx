@@ -33,7 +33,8 @@ import { useSplitBills } from './hooks/useSplitBills'
 import { describeSync, useSync } from './hooks/useSync'
 import { useTransactions } from './hooks/useTransactions'
 import { mergeData, type BackupData } from './lib/backup'
-import { formatShortDate, todayISO, toMonthKey } from './lib/format'
+import { getCategory } from './lib/categories'
+import { formatRupiah, formatShortDate, todayISO, toMonthKey } from './lib/format'
 import { defaultPeriod, getRange, isInRange, type Period } from './lib/period'
 import { getBillStatus, isAttention } from './lib/recurring'
 import { calculateSplit, ME_ID } from './lib/splitBill'
@@ -182,19 +183,31 @@ function App() {
   }
 
   function handleTransactionSubmit(input: TransactionInput) {
-    if (transactionForm === 'new') addTransaction(input)
-    else if (transactionForm) updateTransaction(transactionForm.id, input)
+    const editing = transactionForm
     setTransactionForm(null)
-    // Periode tidak diubah otomatis. Kalau transaksi di luar periode, kasih tahu.
-    if (!isInRange(input.date, range)) {
-      showToast(`Tersimpan (${formatShortDate(input.date)}), di luar periode ini`, {
-        label: 'Lihat',
-        onClick: () => {
-          setPeriod({ ...period, preset: 'month', month: toMonthKey(input.date) })
-          setToast(null)
-        },
-      })
+    function save() {
+      if (editing === 'new') addTransaction(input)
+      else if (editing) updateTransaction(editing.id, input)
     }
+
+    // Selalu beri konfirmasi yang menyebut apa yang tersimpan, supaya tidak perlu menghitung sendiri
+    const what = `${getCategory(input.categoryId).name} ${input.type === 'income' ? '+' : '−'}${formatRupiah(input.amount)}`
+    const verb = editing === 'new' ? 'Tersimpan' : 'Perubahan disimpan'
+
+    // Di periode yang sedang dilihat: bisa dibatalkan
+    if (isInRange(input.date, range)) {
+      withUndo(`${verb} · ${what}`, save)
+      return
+    }
+    // Di luar periode: periode tidak diubah otomatis, tawarkan untuk melihatnya
+    save()
+    showToast(`${verb} · ${what} (${formatShortDate(input.date)}, di luar periode ini)`, {
+      label: 'Lihat',
+      onClick: () => {
+        setPeriod({ ...period, preset: 'month', month: toMonthKey(input.date) })
+        setToast(null)
+      },
+    })
   }
 
   function handleTransactionDelete() {
