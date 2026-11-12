@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { BackupData } from '../lib/backup'
 import { supabase } from '../lib/supabase'
-import { runSync } from '../lib/sync'
+import { clearSyncStates, emptyData, getDataOwner, runSync, setDataOwner } from '../lib/sync'
 
 export type SyncStatus = 'idle' | 'syncing' | 'offline' | 'error'
 
@@ -70,8 +70,10 @@ export function useSync(data: BackupData, replaceData: (next: BackupData) => voi
     latest.current = { data, replaceData }
   })
 
-  const running = useRef(false)
+  const running = useRef<Promise<boolean> | null>(null)
   const queued = useRef(false)
+  // true selama proses keluar: jangan sinkron lagi supaya data tidak tertarik balik
+  const signingOut = useRef(false)
   const userId = user?.id ?? null
 
   // ----- Sesi login -----
@@ -96,40 +98,66 @@ export function useSync(data: BackupData, replaceData: (next: BackupData) => voi
   }, [])
 
   // ----- Sinkron -----
-  const sync = useCallback(async () => {
-    if (!supabase || !userId) return
+  /** Jalankan sinkron. Hasilnya true kalau berhasil sampai selesai. */
+  const sync = useCallback((): Promise<boolean> => {
+    if (!supabase || !userId || signingOut.current) return Promise.resolve(false)
     if (running.current) {
       queued.current = true // ada perubahan baru selama sinkron berjalan: ulangi setelah selesai
-      return
+      return running.current
     }
-    if (!navigator.onLine) return setStatus('offline')
+    if (!navigator.onLine) {
+      setStatus('offline')
+      return Promise.resolve(false)
+    }
+    const client = supabase
+    const id = userId
 
-    running.current = true
-    setStatus('syncing')
-    try {
-      do {
-        queued.current = false
-        await runSync(
-          supabase,
-          userId,
-          () => latest.current.data,
-          (next) => latest.current.replaceData(next),
-        )
-      } while (queued.current)
-      setLastSyncedAt(new Date().toISOString())
-      setError('')
-      setStatus('idle')
-    } catch (e) {
-      setError(describeError(e))
-      setStatus(navigator.onLine ? 'error' : 'offline')
-    } finally {
-      running.current = false
-    }
+    const job = (async () => {
+      setStatus('syncing')
+      // Data di perangkat ini milik akun lain? Kosongkan dulu, lalu tarik data akun ini.
+      // Data yang dicatat sebelum pernah masuk (belum ada pemilik) tetap ikut diunggah.
+      let current: ReturnType<typeof emptyData> | null = null
+      const owner = getDataOwner()
+      if (owner && owner !== id) {
+        clearSyncStates()
+        current = emptyData()
+        latest.current.replaceData(current)
+      }
+      setDataOwner(id)
+
+      try {
+        do {
+          queued.current = false
+          await runSync(
+            client,
+            id,
+            () => current ?? latest.current.data,
+            (next) => {
+              if (current) current = next
+              latest.current.replaceData(next)
+            },
+          )
+        } while (queued.current && !signingOut.current)
+        setLastSyncedAt(new Date().toISOString())
+        setError('')
+        setStatus('idle')
+        return true
+      } catch (e) {
+        setError(describeError(e))
+        setStatus(navigator.onLine ? 'error' : 'offline')
+        return false
+      } finally {
+        running.current = null
+      }
+    })()
+    running.current = job
+    return job
   }, [userId])
 
   // Saat login, internet kembali, aplikasi dibuka lagi, dan berkala
   useEffect(() => {
     if (!userId) return
+    signingOut.current = false
     const first = setTimeout(() => void sync(), 0)
     const onVisible = () => {
       if (!document.hidden) void sync()
@@ -183,8 +211,23 @@ export function useSync(data: BackupData, replaceData: (next: BackupData) => voi
       }
     },
     async signOut() {
-      // Hanya keluar di perangkat ini; data lokal dibiarkan
+      // Kirim dulu perubahan terakhir supaya tidak ada yang hilang
+      const synced = await sync()
+      if (
+        !synced &&
+        !window.confirm(
+          'Perubahan terakhir belum terkirim ke akun (mungkin sedang offline). Kalau tetap keluar, perubahan itu hilang dari perangkat ini. Tetap keluar?',
+        )
+      ) {
+        return
+      }
+      signingOut.current = true
+      await running.current
       await supabase?.auth.signOut({ scope: 'local' })
+      // Data sudah aman di akun: bersihkan dari perangkat ini supaya tidak terbawa ke akun lain
+      clearSyncStates()
+      setDataOwner(null)
+      latest.current.replaceData(emptyData())
       setStatus('idle')
       setError('')
       setLastSyncedAt(null)

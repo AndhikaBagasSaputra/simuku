@@ -95,6 +95,39 @@ function fingerprint(item: unknown) {
   return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(36)
 }
 
+/** Akun pemilik data yang sekarang tersimpan di perangkat ini (supaya data dua akun tidak tercampur) */
+const OWNER_KEY = 'keuangan:sync-owner'
+
+export function getDataOwner(): string | null {
+  try {
+    return localStorage.getItem(OWNER_KEY)
+  } catch {
+    return null
+  }
+}
+
+export function setDataOwner(userId: string | null) {
+  try {
+    if (userId) localStorage.setItem(OWNER_KEY, userId)
+    else localStorage.removeItem(OWNER_KEY)
+  } catch {
+    // abaikan kalau penyimpanan diblokir
+  }
+}
+
+/** Lupakan semua catatan sinkron di perangkat ini (dipakai saat keluar / ganti akun) */
+export function clearSyncStates() {
+  try {
+    for (const key of storageKeys(STATE_PREFIX)) localStorage.removeItem(key)
+  } catch {
+    // abaikan
+  }
+}
+
+export function emptyData(): BackupData {
+  return { transactions: [], debts: [], splitBills: [], goals: [], bills: [] }
+}
+
 /**
  * Pengaman, dipanggil sekali sebelum aplikasi tampil.
  * Kalau data lokal hilang (penyimpanan browser dibersihkan sebagian) tapi bayangannya masih ada,

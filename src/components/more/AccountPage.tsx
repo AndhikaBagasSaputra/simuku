@@ -17,6 +17,7 @@ export function AccountPage({ account }: Props) {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
+  const [signingOut, setSigningOut] = useState(false)
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
@@ -95,10 +96,23 @@ export function AccountPage({ account }: Props) {
         <section className="rounded-2xl bg-surface p-4 shadow-sm">
           <p className="font-semibold text-slate-800">Keluar</p>
           <p className="text-sm text-slate-500">
-            Sinkron berhenti di perangkat ini. Data yang sudah ada di perangkat ini tidak dihapus.
+            Data dikirim dulu ke akunmu, lalu dihapus dari perangkat ini supaya tidak tercampur dengan akun lain.
+            Datamu tetap aman dan muncul lagi saat kamu masuk.
           </p>
-          <button type="button" onClick={() => void account.signOut()} className={`mt-3 w-full ${dangerButtonClass}`}>
-            Keluar dari akun
+          <button
+            type="button"
+            disabled={signingOut}
+            onClick={async () => {
+              setSigningOut(true)
+              try {
+                await account.signOut()
+              } finally {
+                setSigningOut(false)
+              }
+            }}
+            className={`mt-3 w-full disabled:opacity-50 ${dangerButtonClass}`}
+          >
+            {signingOut ? 'Menyinkronkan…' : 'Keluar dari akun'}
           </button>
         </section>
 
