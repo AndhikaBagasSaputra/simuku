@@ -7,20 +7,33 @@ interface Props {
   size?: 'lg' | 'md'
   /** false = tanpa jarak atas (untuk dipakai di baris/grid) */
   spaced?: boolean
+  id?: string
+  /** Tandai kolom salah (garis merah + dibacakan pembaca layar) */
+  invalid?: boolean
+  /** id elemen pesan error/penjelasan untuk kolom ini */
+  describedBy?: string
 }
 
 /** Input nominal Rupiah dengan titik ribuan otomatis */
-export function AmountInput({ value, onChange, autoFocus, size = 'lg', spaced = true }: Props) {
+export function AmountInput({ value, onChange, autoFocus, size = 'lg', spaced = true, id, invalid = false, describedBy }: Props) {
   function handleChange(raw: string) {
     const digits = raw.replace(/\D/g, '').slice(0, 13)
     onChange(digits ? Number(digits) : 0)
   }
 
   return (
-    <div className={`${spaced ? 'mt-1' : ''} flex min-w-0 items-center rounded-xl border border-slate-200 px-3 focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-100`}>
-      <span className="font-semibold text-slate-400">Rp</span>
+    <div className={`${spaced ? 'mt-1' : ''} flex min-w-0 items-center rounded-xl border px-3 focus-within:ring-2 ${
+        invalid
+          ? 'border-rose-600 focus-within:border-rose-600 focus-within:ring-rose-100'
+          : 'border-slate-200 focus-within:border-emerald-500 focus-within:ring-emerald-100'
+      }`}>
+      <span className="font-semibold text-slate-500">Rp</span>
       <input
+        id={id}
         inputMode="numeric"
+        enterKeyHint="done"
+        aria-invalid={invalid || undefined}
+        aria-describedby={describedBy}
         autoFocus={autoFocus}
         placeholder="0"
         value={value ? formatNumber(value) : ''}
