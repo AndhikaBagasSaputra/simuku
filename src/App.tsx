@@ -53,6 +53,15 @@ import type {
   TransactionInput,
 } from './types'
 
+/** Halaman awal: bisa ditentukan lewat ?page= (dipakai notifikasi tagihan), lalu alamatnya dibersihkan */
+function initialPage(): PageKey {
+  const params = new URLSearchParams(window.location.search)
+  const page = params.get('page')
+  if (!page) return 'transaksi'
+  window.history.replaceState(null, '', window.location.pathname)
+  return page in PAGE_INFO ? (page as PageKey) : 'transaksi'
+}
+
 /** null = form tertutup, 'new' = tambah baru, objek = edit */
 type FormState<T> = null | 'new' | T
 
@@ -81,7 +90,7 @@ function App() {
   const isDesktop = useMediaQuery(DESKTOP_QUERY)
 
   // ----- Navigasi -----
-  const [currentPage, setPage] = useState<PageKey>('transaksi')
+  const [currentPage, setPage] = useState<PageKey>(initialPage)
   // Di desktop semua menu ada di sidebar, jadi halaman menu "Lainnya" diganti Target Tabungan
   const page: PageKey = isDesktop && currentPage === 'lainnya' ? 'tabungan' : currentPage
   const [period, setPeriod] = useState<Period>(defaultPeriod)

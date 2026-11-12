@@ -33,6 +33,10 @@ export default defineConfig({
         // Semua file aplikasi disimpan di HP supaya tetap bisa dibuka tanpa internet
         globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
         cleanupOutdatedCaches: true,
+        // Penampil notifikasi pengingat tagihan (public/push-sw.js)
+        importScripts: ['push-sw.js'],
+        // Jangan sajikan index.html untuk /api (fungsi server di Vercel)
+        navigateFallbackDenylist: [/^\/api\//],
         // Langsung kendalikan halaman sejak kunjungan pertama, supaya tombol "Muat ulang"
         // tetap berfungsi walau versi baru muncul di sesi pertama
         clientsClaim: true,

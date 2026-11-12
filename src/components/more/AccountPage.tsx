@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { describeSync, type SyncAccount } from '../../hooks/useSync'
 import { dangerButtonClass, inputClass, labelClass, primaryButtonClass, segmentClass } from '../../lib/ui'
+import { PushSettings } from './PushSettings'
 
 interface Props {
   account: SyncAccount
@@ -88,6 +89,8 @@ export function AccountPage({ account }: Props) {
             Sinkronkan sekarang
           </button>
         </section>
+
+        <PushSettings />
 
         <section className="rounded-2xl bg-surface p-4 shadow-sm">
           <p className="font-semibold text-slate-800">Keluar</p>
