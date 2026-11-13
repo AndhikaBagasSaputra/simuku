@@ -29,9 +29,10 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   // Terapkan ke <html> supaya semua warna ikut berubah
   useEffect(() => {
     document.documentElement.classList.toggle('dark', resolved === 'dark')
-    document
-      .querySelector('meta[name="theme-color"]')
-      ?.setAttribute('content', resolved === 'dark' ? '#0b1220' : '#047857')
+    // Warna bilah status HP mengikuti latar halaman (bukan hijau), untuk tema terang maupun gelap
+    for (const meta of document.querySelectorAll('meta[name="theme-color"]')) {
+      meta.setAttribute('content', resolved === 'dark' ? '#0b1220' : '#f8fafc')
+    }
   }, [resolved])
 
   function setPreference(next: ThemePreference) {

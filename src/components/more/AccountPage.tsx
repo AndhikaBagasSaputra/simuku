@@ -1,18 +1,27 @@
 import { useState, type FormEvent } from 'react'
 import { describeSync, type SyncAccount } from '../../hooks/useSync'
 import { dangerButtonClass, inputClass, labelClass, primaryButtonClass, segmentClass } from '../../lib/ui'
+import { cleanName, MAX_NAME_LENGTH } from '../../lib/profile'
 import { PushSettings } from './PushSettings'
 
 interface Props {
   account: SyncAccount
+  /** Nama tampilan yang dipakai di aplikasi */
+  myName: string
+  onNameChange: (name: string) => void
+  /** Dipanggil setelah berhasil keluar */
+  onSignedOut: () => void
 }
 
 const MIN_PASSWORD = 8
 
 /** Login / daftar dan status sinkron antar perangkat */
-export function AccountPage({ account }: Props) {
+export function AccountPage({ account, myName, onNameChange, onSignedOut }: Props) {
   const [mode, setMode] = useState<'masuk' | 'daftar'>('masuk')
   const [email, setEmail] = useState('')
+  const [name, setName] = useState(myName)
+  const [nameDraft, setNameDraft] = useState(myName)
+  const [nameMessage, setNameMessage] = useState('')
   const [password, setPassword] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
@@ -29,9 +38,11 @@ export function AccountPage({ account }: Props) {
       return setError(`Password minimal ${MIN_PASSWORD} karakter`)
     }
     if (!password) return setError('Password wajib diisi')
+    const cleanedName = cleanName(name)
+    if (mode === 'daftar' && !cleanedName) return setError('Nama wajib diisi')
 
     setBusy(true)
-    const result = mode === 'masuk' ? await account.signIn(cleanEmail, password) : await account.signUp(cleanEmail, password)
+    const result = mode === 'masuk' ? await account.signIn(cleanEmail, password) : await account.signUp(cleanEmail, password, cleanedName)
     setBusy(false)
 
     if (result === 'confirm') {
@@ -43,6 +54,17 @@ export function AccountPage({ account }: Props) {
     } else {
       setPassword('')
     }
+    if (mode === 'daftar' && result !== null && result !== 'confirm') return
+    if (mode === 'daftar') onNameChange(cleanedName)
+  }
+
+  function saveName(e: FormEvent) {
+    e.preventDefault()
+    const clean = cleanName(nameDraft)
+    if (!clean) return setNameMessage('Nama tidak boleh kosong')
+    onNameChange(clean)
+    setNameDraft(clean)
+    setNameMessage('Nama disimpan')
   }
 
   if (!account.configured) {
@@ -72,7 +94,8 @@ export function AccountPage({ account }: Props) {
       <div className="space-y-4 lg:max-w-xl">
         <section className="rounded-2xl bg-surface p-4 shadow-sm">
           <p className="text-sm text-slate-500">Masuk sebagai</p>
-          <p className="truncate font-semibold text-slate-800">{account.user.email}</p>
+          <p className="truncate font-semibold text-slate-800">{myName || account.user.email}</p>
+          {myName && <p className="truncate text-sm text-slate-500">{account.user.email}</p>}
 
           <div role="status" className={`mt-3 rounded-xl p-3 text-sm font-medium ${tone}`}>
             {describeSync(account)}
@@ -91,6 +114,36 @@ export function AccountPage({ account }: Props) {
           </button>
         </section>
 
+        <form onSubmit={saveName} className="rounded-2xl bg-surface p-4 shadow-sm">
+          <label className="block">
+            <span className="font-semibold text-slate-800">Nama</span>
+            <span className="block text-sm text-slate-500">Dipakai di sapaan dan di split bill, menggantikan "Saya".</span>
+            <input
+              type="text"
+              autoComplete="given-name"
+              maxLength={MAX_NAME_LENGTH}
+              value={nameDraft}
+              onChange={(e) => {
+                setNameDraft(e.target.value)
+                setNameMessage('')
+              }}
+              className={inputClass}
+            />
+          </label>
+          <button
+            type="submit"
+            disabled={cleanName(nameDraft) === myName}
+            className="mt-3 w-full rounded-xl border border-slate-200 py-3 font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+          >
+            Simpan nama
+          </button>
+          {nameMessage && (
+            <p role="status" className="mt-2 text-sm text-slate-600">
+              {nameMessage}
+            </p>
+          )}
+        </form>
+
         <PushSettings />
 
         <section className="rounded-2xl bg-surface p-4 shadow-sm">
@@ -105,7 +158,7 @@ export function AccountPage({ account }: Props) {
             onClick={async () => {
               setSigningOut(true)
               try {
-                await account.signOut()
+                if (await account.signOut()) onSignedOut()
               } finally {
                 setSigningOut(false)
               }
@@ -143,7 +196,20 @@ export function AccountPage({ account }: Props) {
           ))}
         </div>
 
-        <label className="mt-4 block">
+        {mode === 'daftar' && (
+          <label className="mt-4 block">
+            <span className={labelClass}>Nama</span>
+            <input
+              type="text"
+              autoComplete="given-name"
+              maxLength={MAX_NAME_LENGTH}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className={inputClass}
+            />
+          </label>
+        )}
+        <label className={`${mode === 'daftar' ? 'mt-3' : 'mt-4'} block`}>
           <span className={labelClass}>Email</span>
           <input
             type="email"

@@ -4,6 +4,8 @@ import { ThemeToggle } from '../ui/ThemeToggle'
 import { PAGE_INFO, SIDEBAR_ITEMS, type PageKey } from './navigation'
 
 interface Props {
+  /** Nama tampilan pengguna (kosong = belum diisi) */
+  myName: string
   page: PageKey
   onNavigate: (page: PageKey) => void
   /** Kosong = halaman ini tidak punya tombol tambah */
@@ -12,14 +14,14 @@ interface Props {
 }
 
 /** Navigasi samping untuk layar lebar (desktop) */
-export function Sidebar({ page, onNavigate, onAdd, billsBadge }: Props) {
+export function Sidebar({ myName, page, onNavigate, onAdd, billsBadge }: Props) {
   return (
     <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-slate-200 bg-surface lg:flex">
       <div className="flex items-center gap-3 px-6 pt-7 pb-6">
         <img src="/icon.png" alt="" className="h-10 w-10" />
         <div>
           <p className="text-lg leading-tight font-extrabold text-slate-800">Simuku</p>
-          <p className="text-xs text-slate-500">Catatan keuangan pribadi</p>
+          <p className="truncate text-xs text-slate-500">{myName ? `Halo, ${myName}` : 'Catatan keuangan pribadi'}</p>
         </div>
       </div>
 

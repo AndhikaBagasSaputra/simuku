@@ -10,15 +10,18 @@ export interface SyncAccount {
   configured: boolean
   /** Masih memeriksa apakah sudah login */
   loading: boolean
-  user: { id: string; email: string } | null
+  user: { id: string; email: string; name: string } | null
   status: SyncStatus
   /** Waktu (ISO) sinkron terakhir yang berhasil di sesi ini */
   lastSyncedAt: string | null
   error: string
   signIn: (email: string, password: string) => Promise<string | null>
   /** Mengembalikan pesan error, 'confirm' kalau email harus dikonfirmasi dulu, atau null kalau langsung masuk */
-  signUp: (email: string, password: string) => Promise<string | null>
-  signOut: () => Promise<void>
+  signUp: (email: string, password: string, name: string) => Promise<string | null>
+  /** false = batal keluar */
+  signOut: () => Promise<boolean>
+  /** Simpan nama tampilan ke akun. Mengembalikan pesan error, atau null kalau berhasil */
+  setName: (name: string) => Promise<string | null>
   syncNow: () => void
 }
 
@@ -81,12 +84,18 @@ export function useSync(data: BackupData, replaceData: (next: BackupData) => voi
     if (!supabase) return
     const client = supabase
     let active = true
-    function apply(sessionUser: { id: string; email?: string } | null | undefined) {
+    function apply(
+      sessionUser: { id: string; email?: string; user_metadata?: { display_name?: unknown } } | null | undefined,
+    ) {
       if (!active) return
-      // Bandingkan id supaya penyegaran token tidak memicu sinkron ulang
-      setUser((prev) =>
-        sessionUser ? (prev?.id === sessionUser.id ? prev : { id: sessionUser.id, email: sessionUser.email ?? '' }) : null,
-      )
+      // Bandingkan id & nama supaya penyegaran token tidak memicu sinkron ulang
+      setUser((prev) => {
+        if (!sessionUser) return null
+        const meta = sessionUser.user_metadata?.display_name
+        const name = typeof meta === 'string' ? meta : ''
+        if (prev?.id === sessionUser.id && prev.name === name) return prev
+        return { id: sessionUser.id, email: sessionUser.email ?? '', name }
+      })
       setLoading(false)
     }
     void client.auth.getSession().then(({ data: result }) => apply(result.session?.user))
@@ -200,10 +209,14 @@ export function useSync(data: BackupData, replaceData: (next: BackupData) => voi
         return describeError(e)
       }
     },
-    async signUp(email, password) {
+    async signUp(email, password, name) {
       if (!supabase) return 'Sinkron belum diatur'
       try {
-        const { data: result, error: authError } = await supabase.auth.signUp({ email, password })
+        const { data: result, error: authError } = await supabase.auth.signUp({
+          email,
+          password,
+          options: { data: { display_name: name } },
+        })
         if (authError) return describeError(authError)
         return result.session ? null : 'confirm'
       } catch (e) {
@@ -219,7 +232,7 @@ export function useSync(data: BackupData, replaceData: (next: BackupData) => voi
           'Perubahan terakhir belum terkirim ke akun (mungkin sedang offline). Kalau tetap keluar, perubahan itu hilang dari perangkat ini. Tetap keluar?',
         )
       ) {
-        return
+        return false
       }
       signingOut.current = true
       await running.current
@@ -231,6 +244,16 @@ export function useSync(data: BackupData, replaceData: (next: BackupData) => voi
       setStatus('idle')
       setError('')
       setLastSyncedAt(null)
+      return true
+    },
+    async setName(name) {
+      if (!supabase) return 'Sinkron belum diatur'
+      try {
+        const { error: updateError } = await supabase.auth.updateUser({ data: { display_name: name } })
+        return updateError ? describeError(updateError) : null
+      } catch (e) {
+        return describeError(e)
+      }
     },
     syncNow: () => void sync(),
   }

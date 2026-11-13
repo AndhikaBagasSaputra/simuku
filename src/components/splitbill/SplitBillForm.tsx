@@ -13,6 +13,8 @@ interface Props {
   initial?: SplitBill
   defaultPaymentInfo: string
   personSuggestions: string[]
+  /** Nama tampilan pengguna, menggantikan "Saya" */
+  myName: string
   onSubmit: (input: SplitBillInput) => void
   onClose: () => void
 }
@@ -23,13 +25,13 @@ function newItem(): SplitItem {
   return { id: crypto.randomUUID(), name: '', price: 0, qty: 1, mode: 'qty', allocations: {} }
 }
 
-function emptyDraft(paymentInfo: string): SplitBillInput {
+function emptyDraft(paymentInfo: string, myName: string): SplitBillInput {
   return {
     title: '',
     date: todayISO(),
     categoryId: 'makan',
     payerId: ME_ID,
-    participants: [{ id: ME_ID, name: ME_NAME }],
+    participants: [{ id: ME_ID, name: myName || ME_NAME }],
     items: [newItem()],
     fees: [],
     discount: { type: 'none', value: 0, max: 0 },
@@ -46,9 +48,9 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
   )
 }
 
-export function SplitBillForm({ initial, defaultPaymentInfo, personSuggestions, onSubmit, onClose }: Props) {
+export function SplitBillForm({ initial, defaultPaymentInfo, personSuggestions, myName, onSubmit, onClose }: Props) {
   const [draft, setDraft] = useState<SplitBillInput>(() =>
-    initial ? toSplitInput(initial) : emptyDraft(defaultPaymentInfo),
+    initial ? toSplitInput(initial) : emptyDraft(defaultPaymentInfo, myName),
   )
   const [newPerson, setNewPerson] = useState('')
   const [error, setError] = useState('')

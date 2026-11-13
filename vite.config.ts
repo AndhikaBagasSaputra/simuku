@@ -20,7 +20,9 @@ export default defineConfig({
         scope: '/',
         display: 'standalone',
         orientation: 'portrait',
-        theme_color: '#047857',
+        // Chrome Android mewarnai bilah navigasi bawah HP dari warna ini (tidak bisa ikut tema).
+        // Dipilih warna latar mode gelap supaya tidak ada bilah hijau di bawah layar.
+        theme_color: '#0b1220',
         background_color: '#f8fafc',
         categories: ['finance', 'productivity'],
         icons: [

@@ -11,6 +11,7 @@ import { HomePage } from './components/home/HomePage'
 import { MORE_PAGES, PAGE_INFO, type PageKey } from './components/layout/navigation'
 import { Sidebar } from './components/layout/Sidebar'
 import { AccountPage } from './components/more/AccountPage'
+import { NamePrompt } from './components/more/NamePrompt'
 import { BackupPage, type RestoreMode } from './components/more/BackupPage'
 import { UpdatePrompt } from './components/pwa/UpdatePrompt'
 import { ExportPage } from './components/more/ExportPage'
@@ -37,7 +38,8 @@ import { getCategory } from './lib/categories'
 import { formatRupiah, formatShortDate, todayISO, toMonthKey } from './lib/format'
 import { defaultPeriod, getRange, isInRange, type Period } from './lib/period'
 import { getBillStatus, isAttention } from './lib/recurring'
-import { calculateSplit, ME_ID } from './lib/splitBill'
+import { calculateSplit, ME_ID, withMyName } from './lib/splitBill'
+import { loadDisplayName, saveDisplayName } from './lib/profile'
 import { planSplitLinks } from './lib/splitLinks'
 import type {
   Debt,
@@ -109,7 +111,11 @@ function App() {
   const [selectedBillId, setSelectedBillId] = useState<string | null>(null)
 
   const selectedDebt = debts.find((d) => d.id === selectedDebtId)
-  const selectedSplit = splitBills.find((b) => b.id === selectedSplitId)
+  // Nama tampilan pengguna: menggantikan "Saya" di split bill dan dipakai untuk sapaan
+  const [myName, setMyName] = useState(loadDisplayName)
+  const [askName, setAskName] = useState(false)
+  const shownSplitBills = splitBills.map((b) => withMyName(b, myName))
+  const selectedSplit = shownSplitBills.find((b) => b.id === selectedSplitId)
   const selectedGoal = goals.find((g) => g.id === selectedGoalId)
   const selectedBill = bills.find((b) => b.id === selectedBillId)
 
@@ -136,6 +142,25 @@ function App() {
 
   // Login & sinkron antar perangkat (tidak melakukan apa-apa kalau belum masuk)
   const account = useSync(allData, replaceAllData)
+
+  function updateMyName(name: string) {
+    saveDisplayName(name)
+    setMyName(name)
+    if (account.user && name && name !== account.user.name) void account.setName(name)
+  }
+
+  // Samakan nama dengan akun: nama di akun menang; kalau akun belum punya nama, kirim nama dari perangkat ini
+  const accountName = account.user?.name ?? null
+  useEffect(() => {
+    if (accountName === null) return
+    if (accountName && accountName !== loadDisplayName()) {
+      saveDisplayName(accountName)
+      setMyName(accountName)
+    } else if (!accountName && loadDisplayName()) {
+      void account.setName(loadDisplayName())
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [accountName])
 
   /**
    * Jalankan aksi yang bisa dibatalkan (hapus, restore backup).
@@ -317,7 +342,11 @@ function App() {
   /** Tombol "+" mengikuti halaman yang sedang dibuka */
   function handleAdd() {
     if (page === 'hutang') setDebtForm('new')
-    else if (page === 'splitbill') setSplitForm('new')
+    // Split bill pertama: tanya nama dulu supaya teks ke teman tidak tertulis "Saya"
+    else if (page === 'splitbill') {
+      if (myName) setSplitForm('new')
+      else setAskName(true)
+    }
     else if (page === 'tabungan') setGoalForm('new')
     else if (page === 'tagihan') setBillForm('new')
     else setTransactionForm('new')
@@ -328,7 +357,7 @@ function App() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <Sidebar page={page} onNavigate={setPage} onAdd={info.addLabel ? handleAdd : undefined} billsBadge={billsNeedAttention} />
+      <Sidebar myName={myName} page={page} onNavigate={setPage} onAdd={info.addLabel ? handleAdd : undefined} billsBadge={billsNeedAttention} />
 
       <div className="lg:pl-64">
         <main className="mx-auto max-w-md space-y-4 px-4 pt-6 pb-28 md:max-w-2xl md:px-6 lg:max-w-6xl lg:space-y-6 lg:px-8 lg:pt-8 lg:pb-12">
@@ -354,7 +383,11 @@ function App() {
                 )}
               </h1>
               {/* Di beranda HP subjudul disembunyikan supaya riwayat lebih cepat terlihat */}
-              {!(page === 'transaksi' && !isDesktop) && <p className="text-sm text-slate-500">{info.subtitle}</p>}
+              {page === 'transaksi' && !isDesktop ? (
+                myName && <p className="truncate text-sm text-slate-500">Halo, {myName}</p>
+              ) : (
+                <p className="text-sm text-slate-500">{info.subtitle}</p>
+              )}
             </div>
             {/* Di desktop, pilihan tema ada di sidebar */}
             {!isDesktop && <ThemeQuickButton />}
@@ -386,7 +419,7 @@ function App() {
           )}
 
           {page === 'splitbill' && (
-            <SplitBillsPage splitBills={splitBills} onSelect={(b) => setSelectedSplitId(b.id)} />
+            <SplitBillsPage splitBills={shownSplitBills} onSelect={(b) => setSelectedSplitId(b.id)} />
           )}
 
           {page === 'lainnya' && (
@@ -394,10 +427,21 @@ function App() {
           )}
           {page === 'tabungan' && <SavingsPage goals={goals} onSelect={(g) => setSelectedGoalId(g.id)} />}
           {page === 'tagihan' && <BillsPage bills={bills} onSelect={(b) => setSelectedBillId(b.id)} />}
-          {page === 'ekspor' && <ExportPage data={allData} />}
+          {page === 'ekspor' && <ExportPage data={{ ...allData, splitBills: shownSplitBills }} />}
           {page === 'backup' && <BackupPage data={allData} onRestore={handleRestore} />}
           {page === 'keamanan' && <LockPage onNotify={showToast} />}
-          {page === 'akun' && <AccountPage account={account} />}
+          {page === 'akun' && (
+            <AccountPage
+              account={account}
+              myName={myName}
+              onNameChange={updateMyName}
+              onSignedOut={() => {
+                // Nama ikut akun: hapus dari perangkat saat keluar
+                saveDisplayName('')
+                setMyName('')
+              }}
+            />
+          )}
         </main>
       </div>
 
@@ -498,12 +542,24 @@ function App() {
         />
       )}
 
+      {askName && (
+        <NamePrompt
+          onClose={() => setAskName(false)}
+          onSave={(name) => {
+            updateMyName(name)
+            setAskName(false)
+            setSplitForm('new')
+          }}
+        />
+      )}
+
       {splitForm && (
         <SplitBillForm
           key={`split-form-${splitForm === 'new' ? 'new' : splitForm.id}`}
           initial={splitForm === 'new' ? undefined : splitForm}
           defaultPaymentInfo={lastPaymentInfo}
           personSuggestions={personSuggestions}
+          myName={myName}
           onSubmit={handleSplitSubmit}
           onClose={() => setSplitForm(null)}
         />

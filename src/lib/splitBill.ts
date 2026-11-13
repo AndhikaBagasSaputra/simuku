@@ -122,6 +122,12 @@ export function calculateSplit(bill: SplitBillInput): SplitCalculation {
   }
 }
 
+/** Ganti nama "Saya" di split bill dengan nama tampilan pengguna (kalau sudah diisi) */
+export function withMyName<T extends SplitBillInput>(bill: T, myName: string): T {
+  if (!myName) return bill
+  return { ...bill, participants: bill.participants.map((p) => (p.id === ME_ID ? { ...p, name: myName } : p)) }
+}
+
 export function getPayerName(bill: SplitBillInput) {
   return bill.participants.find((p) => p.id === bill.payerId)?.name ?? ME_NAME
 }
