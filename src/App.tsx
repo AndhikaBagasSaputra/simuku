@@ -346,7 +346,7 @@ function App() {
               <h1 className="text-2xl font-bold tracking-tight text-slate-800 lg:text-3xl">
                 {page === 'transaksi' && !isDesktop ? (
                   <span className="flex items-center gap-2">
-                    <img src="/icon.svg" alt="" className="h-8 w-8" />
+                    <img src="/icon.png" alt="" className="h-8 w-8" />
                     Simuku
                   </span>
                 ) : (

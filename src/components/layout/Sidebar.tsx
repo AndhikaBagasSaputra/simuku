@@ -16,7 +16,7 @@ export function Sidebar({ page, onNavigate, onAdd, billsBadge }: Props) {
   return (
     <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-slate-200 bg-surface lg:flex">
       <div className="flex items-center gap-3 px-6 pt-7 pb-6">
-        <img src="/icon.svg" alt="" className="h-10 w-10 shadow-sm" />
+        <img src="/icon.png" alt="" className="h-10 w-10" />
         <div>
           <p className="text-lg leading-tight font-extrabold text-slate-800">Simuku</p>
           <p className="text-xs text-slate-500">Catatan keuangan pribadi</p>
