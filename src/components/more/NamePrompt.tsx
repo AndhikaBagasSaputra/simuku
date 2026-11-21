@@ -23,10 +23,7 @@ export function NamePrompt({ onSave, onClose }: Props) {
   return (
     <Sheet title="Siapa namamu?" onClose={onClose}>
       <form onSubmit={handleSubmit}>
-        <p className="text-sm text-slate-600">
-          Namamu dipakai di split bill dan teks yang kamu kirim ke teman, misalnya "Dibayar oleh Andhika". Bisa
-          diubah nanti di halaman Akun &amp; Sinkron.
-        </p>
+        <p className="text-sm text-slate-600">Dipakai di split bill dan teks untuk teman.</p>
         <label className="mt-4 block">
           <span className={labelClass}>Nama</span>
           <input

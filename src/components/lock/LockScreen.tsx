@@ -1,6 +1,6 @@
 import { Lock } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { checkPin, clearFailures, getLockoutUntil, registerFailure, wipeAllData } from '../../lib/appLock'
+import { checkPin, clearFailures, getLockConfig, getLockoutUntil, registerFailure, wipeAllData } from '../../lib/appLock'
 import { dangerButtonClass, inputClass } from '../../lib/ui'
 import { PinPad } from './PinPad'
 
@@ -115,6 +115,7 @@ export function LockScreen({ onUnlock }: Props) {
           <>
             <p className="mt-1 mb-5 text-center text-sm text-slate-500">Masukkan PIN untuk membuka</p>
             <PinPad
+              length={getLockConfig()?.length}
               onComplete={handlePin}
               disabled={waitSeconds > 0}
               error={waitSeconds > 0 ? `Terlalu banyak percobaan. Coba lagi dalam ${waitSeconds} detik.` : error}

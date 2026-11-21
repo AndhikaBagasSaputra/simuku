@@ -7,12 +7,14 @@ interface Props {
   onComplete: (pin: string) => void | Promise<void>
   error?: string
   disabled?: boolean
+  /** Jumlah angka PIN */
+  length?: number
 }
 
 const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
 
 /** Titik PIN + tombol angka. Bisa juga diketik dari keyboard */
-export function PinPad({ onComplete, error, disabled = false }: Props) {
+export function PinPad({ onComplete, error, disabled = false, length = PIN_LENGTH }: Props) {
   const [digits, setDigits] = useState('')
   const [busy, setBusy] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
@@ -26,11 +28,11 @@ export function PinPad({ onComplete, error, disabled = false }: Props) {
 
   async function press(digit: string) {
     const { digits: currentDigits, blocked: isBlocked, onComplete: complete } = stateRef.current
-    if (isBlocked || currentDigits.length >= PIN_LENGTH) return
+    if (isBlocked || currentDigits.length >= length) return
     const next = currentDigits + digit
     stateRef.current.digits = next
     setDigits(next)
-    if (next.length < PIN_LENGTH) return
+    if (next.length < length) return
 
     setBusy(true)
     try {
@@ -78,9 +80,9 @@ export function PinPad({ onComplete, error, disabled = false }: Props) {
       <div
         className="flex justify-center gap-3"
         role="status"
-        aria-label={`${digits.length} dari ${PIN_LENGTH} digit terisi`}
+        aria-label={`${digits.length} dari ${length} digit terisi`}
       >
-        {Array.from({ length: PIN_LENGTH }, (_, i) => (
+        {Array.from({ length }, (_, i) => (
           <span
             key={i}
             className={`h-3.5 w-3.5 rounded-full border-2 ${

@@ -31,10 +31,14 @@ export const CATEGORIES: Category[] = [
   { id: 'freelance', name: 'Freelance', type: 'income', color: CHART_COLORS[2] },
   { id: 'investasi', name: 'Investasi', type: 'income', color: CHART_COLORS[3] },
   { id: 'lainnya-masuk', name: 'Lainnya', type: 'income', color: CHART_COLORS[4] },
+  // Dicatat otomatis dari Hutang & Piutang
+  { id: 'hutang-keluar', name: 'Hutang & Piutang', type: 'expense', color: '#898781', system: true },
+  { id: 'hutang-masuk', name: 'Hutang & Piutang', type: 'income', color: '#898781', system: true },
 ]
 
-export function getCategoriesByType(type: TransactionType) {
-  return CATEGORIES.filter((c) => c.type === type)
+/** includeSystem = ikut kategori sistem (untuk grafik); pilihan di form tidak memakainya */
+export function getCategoriesByType(type: TransactionType, includeSystem = false) {
+  return CATEGORIES.filter((c) => c.type === type && (includeSystem || !c.system))
 }
 
 export function getCategory(id: string): Category {

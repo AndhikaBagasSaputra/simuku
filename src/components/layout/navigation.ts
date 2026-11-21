@@ -48,15 +48,15 @@ export const BOTTOM_RIGHT: NavItem[] = [
 export const MORE_PAGES: PageKey[] = ['lainnya', 'tabungan', 'tagihan', 'ekspor', 'backup', 'keamanan', 'akun']
 
 /** addLabel kosong = halaman tanpa tombol tambah (tidak ada daftar yang bisa ditambah di sana) */
-export const PAGE_INFO: Record<PageKey, { title: string; subtitle: string; addLabel?: string }> = {
-  transaksi: { title: 'Transaksi', subtitle: 'Catat dan pantau pemasukan & pengeluaranmu', addLabel: 'Tambah Transaksi' },
-  hutang: { title: 'Hutang & Piutang', subtitle: 'Pantau siapa hutang ke siapa', addLabel: 'Catat Hutang' },
-  splitbill: { title: 'Split Bill', subtitle: 'Bagi tagihan bareng teman', addLabel: 'Split Bill Baru' },
-  lainnya: { title: 'Lainnya', subtitle: 'Fitur tambahan' },
-  tabungan: { title: 'Target Tabungan', subtitle: 'Wujudkan rencanamu', addLabel: 'Target Baru' },
-  tagihan: { title: 'Tagihan Rutin', subtitle: 'Langganan & cicilan', addLabel: 'Tagihan Baru' },
-  ekspor: { title: 'Ekspor Data', subtitle: 'Download data ke Excel / CSV' },
-  backup: { title: 'Backup & Restore', subtitle: 'Amankan datamu dalam satu file' },
-  keamanan: { title: 'Kunci Aplikasi', subtitle: 'Lindungi aplikasi dengan PIN' },
-  akun: { title: 'Akun & Sinkron', subtitle: 'Samakan data di semua perangkatmu' },
+export const PAGE_INFO: Record<PageKey, { title: string; addLabel?: string }> = {
+  transaksi: { title: 'Transaksi', addLabel: 'Tambah Transaksi' },
+  hutang: { title: 'Hutang & Piutang', addLabel: 'Catat Hutang' },
+  splitbill: { title: 'Split Bill', addLabel: 'Split Bill Baru' },
+  lainnya: { title: 'Lainnya', },
+  tabungan: { title: 'Target Tabungan', addLabel: 'Target Baru' },
+  tagihan: { title: 'Tagihan Rutin', addLabel: 'Tagihan Baru' },
+  ekspor: { title: 'Ekspor Data', },
+  backup: { title: 'Backup & Restore', },
+  keamanan: { title: 'Kunci Aplikasi', },
+  akun: { title: 'Akun & Sinkron', },
 }

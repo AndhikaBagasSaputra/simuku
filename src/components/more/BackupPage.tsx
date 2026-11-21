@@ -74,10 +74,6 @@ export function BackupPage({ data, onRestore }: Props) {
       <section className="space-y-4 rounded-2xl bg-surface p-5 shadow-sm">
         <div>
           <h2 className="text-lg font-semibold text-slate-800">Backup data</h2>
-          <p className="mt-1 text-sm text-slate-500">
-            Simpan semua data ke satu file. File ini bisa dipakai untuk memulihkan data kalau browser dibersihkan atau
-            pindah perangkat.
-          </p>
         </div>
 
         <div
@@ -114,16 +110,12 @@ export function BackupPage({ data, onRestore }: Props) {
         >
           Download Backup
         </button>
-        <p className="text-xs text-slate-500">
-          Simpan file backup di tempat aman, misalnya Google Drive atau kirim ke email sendiri.
-        </p>
       </section>
 
       {/* ===== Restore ===== */}
       <section className="space-y-4 rounded-2xl bg-surface p-5 shadow-sm">
         <div>
           <h2 className="text-lg font-semibold text-slate-800">Pulihkan dari backup</h2>
-          <p className="mt-1 text-sm text-slate-500">Pilih file backup (.json) yang pernah kamu download.</p>
         </div>
 
         <input
@@ -213,7 +205,6 @@ export function BackupPage({ data, onRestore }: Props) {
                 Pulihkan Data
               </button>
             </div>
-            <p className="text-xs text-slate-500">Setelah dipulihkan, kamu masih bisa membatalkannya selama beberapa detik.</p>
           </div>
         )}
       </section>

@@ -21,7 +21,7 @@ export function Sidebar({ myName, page, onNavigate, onAdd, billsBadge }: Props) 
         <img src="/icon.png" alt="" className="h-10 w-10" />
         <div>
           <p className="text-lg leading-tight font-extrabold text-slate-800">Simuku</p>
-          <p className="truncate text-xs text-slate-500">{myName ? `Halo, ${myName}` : 'Catatan keuangan pribadi'}</p>
+          {myName && <p className="truncate text-xs text-slate-500">Halo, {myName}</p>}
         </div>
       </div>
 
@@ -65,10 +65,8 @@ export function Sidebar({ myName, page, onNavigate, onAdd, billsBadge }: Props) 
       <div className="space-y-3 px-4 pb-6">
         <InstallCard variant="compact" />
         <div>
-          <p className="mb-1.5 px-2 text-xs font-semibold text-slate-500">Tampilan</p>
           <ThemeToggle />
         </div>
-        <p className="px-2 text-xs text-slate-500">Data tersimpan di browser ini</p>
       </div>
     </aside>
   )

@@ -5,6 +5,7 @@ import {
   CircleHelp,
   Gamepad2,
   Gift,
+  HandCoins,
   Laptop,
   Package,
   Pill,
@@ -32,6 +33,8 @@ const ICONS: Record<string, LucideIcon> = {
   freelance: Laptop,
   investasi: TrendingUp,
   'lainnya-masuk': Wallet,
+  'hutang-keluar': HandCoins,
+  'hutang-masuk': HandCoins,
 }
 
 const SIZES = {

@@ -41,10 +41,12 @@ import { getBillStatus, isAttention } from './lib/recurring'
 import { calculateSplit, ME_ID, withMyName } from './lib/splitBill'
 import { loadDisplayName, saveDisplayName } from './lib/profile'
 import { planSplitLinks } from './lib/splitLinks'
+import { canRecordDebt, debtCreationTransaction, debtPaymentTransaction, linkedTransactionIds } from './lib/debtLinks'
 import type {
   Debt,
   DebtDirection,
   DebtInput,
+  DebtPaymentInput,
   RecurringBill,
   RecurringBillInput,
   SavingsGoal,
@@ -76,7 +78,7 @@ function summaryLabel(period: Period) {
 function App() {
   const { transactions, addTransaction, updateTransaction, deleteTransaction, upsertTransaction, restoreTransactions } =
     useTransactions()
-  const { debts, addDebt, updateDebt, deleteDebt, addPayment, deletePayment, upsertDebt, restoreDebts } = useDebts()
+  const { debts, updateDebt, deleteDebt, addPayment, deletePayment, upsertDebt, restoreDebts } = useDebts()
   const { splitBills, saveSplitBill, deleteSplitBill, restoreSplitBills } = useSplitBills()
   const { goals, addGoal, updateGoal, deleteGoal, addEntry, deleteEntry, restoreGoals } = useSavings()
   const {
@@ -211,6 +213,9 @@ function App() {
     // Transaksi dari split bill dibuka lewat split bill-nya
     if (t.splitBillId && splitBills.some((b) => b.id === t.splitBillId)) {
       setSelectedSplitId(t.splitBillId)
+    } else if (t.debtId && debts.some((d) => d.id === t.debtId)) {
+      // Transaksi dari hutang diubah/dihapus lewat hutangnya, supaya keduanya tetap cocok
+      setSelectedDebtId(t.debtId)
     } else {
       setTransactionForm(t)
     }
@@ -257,11 +262,31 @@ function App() {
   }
 
   // ----- Hutang -----
-  function handleDebtSubmit(input: DebtInput) {
-    if (debtForm === 'new') addDebt(input)
-    else if (debtForm) updateDebt(debtForm.id, input)
+  function handleDebtSubmit(input: DebtInput, record: boolean) {
+    if (debtForm === 'new') {
+      const id = crypto.randomUUID()
+      const transactionId = record ? crypto.randomUUID() : null
+      if (transactionId) upsertTransaction(transactionId, debtCreationTransaction(input, id))
+      upsertDebt(id, { ...input, transactionId })
+    } else if (debtForm) {
+      updateDebt(debtForm.id, input)
+      // Transaksi yang dicatat saat hutang dibuat ikut menyesuaikan (nominal, tanggal, nama, arah)
+      if (debtForm.transactionId) upsertTransaction(debtForm.transactionId, debtCreationTransaction(input, debtForm.id))
+    }
     setDebtDirection(input.direction)
     setDebtForm(null)
+  }
+
+  function handleDebtPayment(debt: Debt, input: DebtPaymentInput, record: boolean) {
+    const transactionId = record && canRecordDebt(debt) ? crypto.randomUUID() : null
+    if (transactionId) upsertTransaction(transactionId, debtPaymentTransaction(debt, input))
+    addPayment(debt.id, { ...input, transactionId })
+  }
+
+  /** Hapus hutang beserta semua transaksi yang tercatat darinya */
+  function removeDebtWithTransactions(debt: Debt) {
+    for (const id of linkedTransactionIds(debt)) deleteTransaction(id)
+    deleteDebt(debt.id)
   }
 
   // ----- Split bill -----
@@ -382,11 +407,8 @@ function App() {
                   info.title
                 )}
               </h1>
-              {/* Di beranda HP subjudul disembunyikan supaya riwayat lebih cepat terlihat */}
-              {page === 'transaksi' && !isDesktop ? (
-                myName && <p className="truncate text-sm text-slate-500">Halo, {myName}</p>
-              ) : (
-                <p className="text-sm text-slate-500">{info.subtitle}</p>
+              {page === 'transaksi' && !isDesktop && myName && (
+                <p className="truncate text-sm text-slate-500">Halo, {myName}</p>
               )}
             </div>
             {/* Di desktop, pilihan tema ada di sidebar */}
@@ -484,12 +506,16 @@ function App() {
           onClose={() => setSelectedDebtId(null)}
           onEdit={() => setDebtForm(selectedDebt)}
           onDelete={() => {
-            deleteWithUndo('Hutang dihapus', () => deleteDebt(selectedDebt.id))
+            deleteWithUndo('Hutang dihapus', () => removeDebtWithTransactions(selectedDebt))
             setSelectedDebtId(null)
           }}
-          onAddPayment={(input) => addPayment(selectedDebt.id, input)}
+          onAddPayment={(input, record) => handleDebtPayment(selectedDebt, input, record)}
           onDeletePayment={(paymentId) =>
-            deleteWithUndo('Pembayaran dihapus', () => deletePayment(selectedDebt.id, paymentId))
+            deleteWithUndo('Pembayaran dihapus', () => {
+              const txId = selectedDebt.payments.find((p) => p.id === paymentId)?.transactionId
+              if (txId) deleteTransaction(txId)
+              deletePayment(selectedDebt.id, paymentId)
+            })
           }
           splitBillTitle={splitBills.find((b) => b.id === selectedDebt.splitBillId)?.title}
           onOpenSplitBill={() => {

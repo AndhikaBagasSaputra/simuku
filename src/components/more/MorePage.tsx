@@ -85,7 +85,6 @@ export function MorePage({ goals, bills, syncLabel, onOpen }: Props) {
     </ul>
 
       <section className="rounded-2xl bg-surface p-4 shadow-sm">
-        <p className="mb-2 font-semibold text-slate-800">Tampilan</p>
         <ThemeToggle />
       </section>
     </div>

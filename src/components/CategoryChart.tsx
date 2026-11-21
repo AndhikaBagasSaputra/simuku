@@ -32,7 +32,7 @@ export function CategoryChart({ transactions }: Props) {
     if (t.type === type) totals.set(t.categoryId, (totals.get(t.categoryId) ?? 0) + t.amount)
   }
   const total = [...totals.values()].reduce((sum, v) => sum + v, 0)
-  const slices: Slice[] = getCategoriesByType(type)
+  const slices: Slice[] = getCategoriesByType(type, true)
     .map((c) => {
       const value = totals.get(c.id) ?? 0
       return { ...c, color: themedColor(c.color, theme), value, percent: total ? (value / total) * 100 : 0 }

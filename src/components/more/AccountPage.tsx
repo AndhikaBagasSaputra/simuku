@@ -117,7 +117,6 @@ export function AccountPage({ account, myName, onNameChange, onSignedOut }: Prop
         <form onSubmit={saveName} className="rounded-2xl bg-surface p-4 shadow-sm">
           <label className="block">
             <span className="font-semibold text-slate-800">Nama</span>
-            <span className="block text-sm text-slate-500">Dipakai di sapaan dan di split bill, menggantikan "Saya".</span>
             <input
               type="text"
               autoComplete="given-name"
@@ -148,10 +147,6 @@ export function AccountPage({ account, myName, onNameChange, onSignedOut }: Prop
 
         <section className="rounded-2xl bg-surface p-4 shadow-sm">
           <p className="font-semibold text-slate-800">Keluar</p>
-          <p className="text-sm text-slate-500">
-            Data dikirim dulu ke akunmu, lalu dihapus dari perangkat ini supaya tidak tercampur dengan akun lain.
-            Datamu tetap aman dan muncul lagi saat kamu masuk.
-          </p>
           <button
             type="button"
             disabled={signingOut}
@@ -168,11 +163,6 @@ export function AccountPage({ account, myName, onNameChange, onSignedOut }: Prop
             {signingOut ? 'Menyinkronkan…' : 'Keluar dari akun'}
           </button>
         </section>
-
-        <p className="px-1 text-xs text-slate-500">
-          Data disinkronkan otomatis setiap ada perubahan, saat aplikasi dibuka, dan saat internet kembali. Masuk
-          dengan akun yang sama di perangkat lain untuk melihat data yang sama.
-        </p>
       </div>
     )
   }
@@ -245,11 +235,6 @@ export function AccountPage({ account, myName, onNameChange, onSignedOut }: Prop
           {busy ? 'Memproses…' : mode === 'masuk' ? 'Masuk' : 'Buat akun'}
         </button>
       </form>
-
-      <p className="px-1 text-xs text-slate-500">
-        Setelah masuk, data di perangkat ini diunggah ke akunmu dan digabung dengan data yang sudah ada di sana.
-        Tanpa masuk, aplikasi tetap bisa dipakai dan data hanya tersimpan di perangkat ini.
-      </p>
     </div>
   )
 }

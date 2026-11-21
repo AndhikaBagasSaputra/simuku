@@ -177,6 +177,23 @@ export function buildSplitText(bill: SplitBillInput, calc: SplitCalculation) {
   return lines.join('\n')
 }
 
+/**
+ * Teks ringkas untuk WhatsApp: per orang hanya barangnya dan total yang harus dibayar.
+ * Diskon & biaya lain sudah termasuk di total, jadi tidak dirinci.
+ * Bagian pengguna sendiri tidak ditampilkan (teks ini untuk teman); teks lengkap tetap menampilkannya.
+ */
+export function buildSplitTextShort(bill: SplitBillInput, calc: SplitCalculation) {
+  const lines: string[] = [`Split Bill: ${bill.title}`, formatShortDate(bill.date)]
+
+  for (const s of calc.shares.filter((share) => share.participant.id !== ME_ID)) {
+    const items = s.lines.map((l) => (l.sharedBy === 1 && l.qty > 1 ? `${l.qty}x ${l.itemName}` : l.itemName))
+    lines.push('', s.participant.name, `  ${items.join(' + ')}`, `  Total: ${formatRupiah(s.total)}`)
+  }
+
+  if (bill.paymentInfo.trim()) lines.push('', `Transfer ke: ${bill.paymentInfo.trim()}`)
+  return lines.join('\n')
+}
+
 /** Ambil bagian yang bisa diedit dari split bill yang sudah tersimpan */
 export function toSplitInput(bill: SplitBill): SplitBillInput {
   return {

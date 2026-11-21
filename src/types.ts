@@ -13,6 +13,8 @@ export interface Transaction {
   splitBillId?: string
   /** Terisi kalau transaksi ini pembayaran tagihan rutin */
   recurringBillId?: string
+  /** Terisi kalau transaksi ini dicatat dari hutang/piutang (dibuat atau dibayar) */
+  debtId?: string
 }
 
 /** Data yang diisi user di form (id & createdAt dibuat otomatis) */
@@ -28,6 +30,8 @@ export interface DebtPayment {
   amount: number
   date: string
   note: string
+  /** Transaksi yang dicatat untuk pembayaran ini (null/kosong = tidak dicatat) */
+  transactionId?: string | null
 }
 
 export interface Debt {
@@ -43,6 +47,8 @@ export interface Debt {
   createdAt: string
   /** Terisi kalau hutang ini dibuat otomatis dari split bill */
   splitBillId?: string
+  /** Transaksi yang dicatat saat hutang ini dibuat (null/kosong = tidak dicatat) */
+  transactionId?: string | null
 }
 
 export type DebtInput = Omit<Debt, 'id' | 'createdAt' | 'payments'>
@@ -169,6 +175,8 @@ export type RecurringBillInput = Omit<RecurringBill, 'id' | 'createdAt' | 'payme
 export interface Category {
   id: string
   name: string
+  /** Kategori sistem: dipakai otomatis, tidak muncul di pilihan kategori */
+  system?: boolean
   type: TransactionType
   /** Warna tetap untuk grafik (tidak berubah walau urutan/ranking berubah) */
   color: string

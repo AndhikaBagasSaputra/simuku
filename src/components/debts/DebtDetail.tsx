@@ -1,3 +1,4 @@
+import { canRecordDebt } from '../../lib/debtLinks'
 import { ArrowDownLeft, Undo2 } from 'lucide-react'
 import { useState, type FormEvent } from 'react'
 import { getDebtStats } from '../../lib/debt'
@@ -13,7 +14,8 @@ interface Props {
   onClose: () => void
   onEdit: () => void
   onDelete: () => void
-  onAddPayment: (input: DebtPaymentInput) => void
+  /** record = catat juga sebagai transaksi */
+  onAddPayment: (input: DebtPaymentInput, record: boolean) => void
   onDeletePayment: (paymentId: string) => void
   /** Diisi kalau hutang ini berasal dari split bill */
   splitBillTitle?: string
@@ -50,8 +52,11 @@ export function DebtDetail({
   const [note, setNote] = useState('')
   const [error, setError] = useState('')
   const [copied, setCopied] = useState(false)
+  const [record, setRecord] = useState(true)
 
   const isOwedToMe = debt.direction === 'owed_to_me'
+  // Hutang dari split bill sudah tercatat di pengeluaran saat split bill dibuat
+  const recordable = canRecordDebt(debt)
   const payments = [...debt.payments].sort((a, b) => b.date.localeCompare(a.date))
   const extra = stats.remaining > 0 && amount > stats.remaining ? amount - stats.remaining : 0
 
@@ -59,7 +64,7 @@ export function DebtDetail({
     e.preventDefault()
     if (amount <= 0) return setError('Nominal pembayaran harus lebih dari 0')
     if (!date) return setError('Tanggal wajib diisi')
-    onAddPayment({ kind: 'payment', amount, date, note: note.trim() })
+    onAddPayment({ kind: 'payment', amount, date, note: note.trim() }, recordable && record)
     setAmount(0)
     setNote('')
     setError('')
@@ -70,7 +75,7 @@ export function DebtDetail({
       ? `Catat bahwa kamu sudah mengembalikan ${formatRupiah(stats.overpaid)} ke ${debt.person}?`
       : `Catat bahwa ${debt.person} sudah mengembalikan ${formatRupiah(stats.overpaid)} ke kamu?`
     if (window.confirm(message)) {
-      onAddPayment({ kind: 'refund', amount: stats.overpaid, date: todayISO(), note: 'Pengembalian kelebihan bayar' })
+      onAddPayment({ kind: 'refund', amount: stats.overpaid, date: todayISO(), note: 'Pengembalian kelebihan bayar' }, recordable)
     }
   }
 
@@ -191,6 +196,22 @@ export function DebtDetail({
               />
             </label>
           </div>
+
+          {recordable ? (
+            <label className="mt-3 flex items-center gap-2 text-sm text-slate-700">
+              <input
+                type="checkbox"
+                checked={record}
+                onChange={(e) => setRecord(e.target.checked)}
+                className="h-4 w-4 shrink-0 accent-emerald-600"
+              />
+              {isOwedToMe ? 'Catat juga sebagai pemasukan' : 'Catat juga sebagai pengeluaran'}
+            </label>
+          ) : (
+            <p className="mt-3 text-xs text-slate-500">
+              Dari split bill: bagianmu sudah tercatat di pengeluaran, jadi pembayaran ini tidak dicatat lagi.
+            </p>
+          )}
 
           {error && <p className="mt-2 text-sm font-medium text-rose-600">{error}</p>}
 

@@ -100,7 +100,6 @@ export function HomePage(props: Props) {
             {label}
           </button>
         ))}
-        {!query && <span className="text-xs text-slate-500">Contoh: makan · 50000 · 12 nov</span>}
       </div>
 
       {isFiltering && (

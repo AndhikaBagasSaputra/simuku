@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useAppLock } from '../../hooks/useAppLock'
-import { checkPin, PIN_LENGTH, TIMEOUT_OPTIONS } from '../../lib/appLock'
-import { dangerButtonClass, primaryButtonClass } from '../../lib/ui'
+import { checkPin, getLockConfig, PIN_LENGTH, PIN_LENGTHS, TIMEOUT_OPTIONS } from '../../lib/appLock'
+import { dangerButtonClass, primaryButtonClass, segmentClass } from '../../lib/ui'
 import { PinPad } from '../lock/PinPad'
 import { Sheet } from '../ui/Sheet'
 
@@ -16,7 +16,7 @@ const FLOW_TITLE: Record<Flow, string> = {
 
 const STEP_TEXT: Record<Step, string> = {
   current: 'Masukkan PIN saat ini',
-  new: `Masukkan PIN baru (${PIN_LENGTH} angka)`,
+  new: 'Masukkan PIN baru',
   confirm: 'Ulangi PIN baru',
 }
 
@@ -31,6 +31,8 @@ export function LockPage({ onNotify }: Props) {
   const [step, setStep] = useState<Step>('new')
   const [firstPin, setFirstPin] = useState('')
   const [error, setError] = useState('')
+  // Panjang PIN baru (4 atau 6 angka); default mengikuti PIN yang sekarang
+  const [pinLength, setPinLength] = useState<number>(() => getLockConfig()?.length ?? PIN_LENGTH)
 
   function start(next: Flow) {
     setFlow(next)
@@ -77,11 +79,6 @@ export function LockPage({ onNotify }: Props) {
         <div className="flex items-center justify-between gap-3">
           <div className="min-w-0">
             <p className="font-semibold text-slate-800">Kunci PIN</p>
-            <p className="text-sm text-slate-500">
-              {lock.enabled
-                ? 'Aktif. Aplikasi meminta PIN setiap dibuka.'
-                : 'Belum aktif. Siapa pun yang membuka aplikasi ini bisa melihat datamu.'}
-            </p>
           </div>
           <span
             className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${
@@ -121,9 +118,6 @@ export function LockPage({ onNotify }: Props) {
           <section className="rounded-2xl bg-surface p-4 shadow-sm">
             <label className="block">
               <span className="font-semibold text-slate-800">Kunci otomatis</span>
-              <span className="block text-sm text-slate-500">
-                Terkunci lagi setelah aplikasi ditinggal atau tidak disentuh selama:
-              </span>
               <select
                 value={lock.timeoutMin}
                 onChange={(e) => lock.setTimeoutMin(Number(e.target.value))}
@@ -136,16 +130,10 @@ export function LockPage({ onNotify }: Props) {
                 ))}
               </select>
             </label>
-            {lock.timeoutMin === 0 && (
-              <p className="mt-2 text-xs text-slate-500">
-                "Langsung" mengunci setiap kali kamu pindah aplikasi, pindah tab, atau mematikan layar.
-              </p>
-            )}
           </section>
 
           <section className="rounded-2xl bg-surface p-4 shadow-sm">
             <p className="font-semibold text-slate-800">Matikan kunci</p>
-            <p className="text-sm text-slate-500">Aplikasi bisa dibuka tanpa PIN. Datamu tidak berubah.</p>
             <button type="button" onClick={() => start('disable')} className={`mt-3 w-full ${dangerButtonClass}`}>
               Matikan kunci PIN
             </button>
@@ -153,22 +141,33 @@ export function LockPage({ onNotify }: Props) {
         </>
       )}
 
-      <section className="rounded-2xl bg-amber-50 p-4 text-sm text-amber-800">
-        <p className="font-semibold">Yang perlu kamu tahu</p>
-        <ul className="mt-1 list-disc space-y-1 pl-5">
-          <li>
-            <b>PIN tidak bisa dipulihkan.</b> Kalau lupa, semua data di perangkat ini harus dihapus. Rutinlah
-            membuat backup supaya datanya bisa dikembalikan.
-          </li>
-          <li>PIN berlaku untuk perangkat ini saja. Di perangkat lain, PIN diatur sendiri.</li>
-          <li>Ini kunci layar, bukan enkripsi: tujuannya mencegah orang lain mengintip saat memegang perangkatmu.</li>
-        </ul>
-      </section>
+      <p className="px-1 text-xs text-amber-800">PIN tidak bisa dipulihkan. Kalau lupa, data di perangkat ini harus dihapus.</p>
 
       {flow && (
         <Sheet title={FLOW_TITLE[flow]} onClose={close}>
-          <p className="mb-5 text-center text-sm font-medium text-slate-600">{STEP_TEXT[step]}</p>
-          <PinPad onComplete={handlePin} error={error} />
+          <p className="mb-4 text-center text-sm font-medium text-slate-600">{STEP_TEXT[step]}</p>
+          {step === 'new' && (
+            <div className="mx-auto mb-5 grid max-w-64 grid-cols-2 gap-1 rounded-xl bg-slate-100 p-1" role="group" aria-label="Panjang PIN">
+              {PIN_LENGTHS.map((n) => (
+                <button
+                  key={n}
+                  type="button"
+                  onClick={() => setPinLength(n)}
+                  aria-pressed={pinLength === n}
+                  className={segmentClass(pinLength === n)}
+                >
+                  {n} angka
+                </button>
+              ))}
+            </div>
+          )}
+          <PinPad
+            // key: kosongkan isian saat panjang atau langkahnya berganti
+            key={`${step}-${step === 'current' ? 'cur' : pinLength}`}
+            length={step === 'current' ? (getLockConfig()?.length ?? PIN_LENGTH) : pinLength}
+            onComplete={handlePin}
+            error={error}
+          />
         </Sheet>
       )}
     </div>

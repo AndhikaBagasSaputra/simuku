@@ -11,7 +11,8 @@ interface Props {
   defaultDirection: DebtDirection
   /** Nama-nama yang pernah dipakai, untuk saran ketik */
   personSuggestions: string[]
-  onSubmit: (input: DebtInput) => void
+  /** record = catat juga sebagai transaksi (hanya untuk hutang baru) */
+  onSubmit: (input: DebtInput, record: boolean) => void
   onClose: () => void
 }
 
@@ -23,6 +24,7 @@ export function DebtForm({ initial, defaultDirection, personSuggestions, onSubmi
   const [dueDate, setDueDate] = useState(initial?.dueDate ?? '')
   const [note, setNote] = useState(initial?.note ?? '')
   const [error, setError] = useState('')
+  const [record, setRecord] = useState(true)
 
   const isEdit = Boolean(initial)
 
@@ -32,7 +34,7 @@ export function DebtForm({ initial, defaultDirection, personSuggestions, onSubmi
     if (amount <= 0) return setError('Nominal harus lebih dari 0')
     if (!date) return setError('Tanggal wajib diisi')
     if (dueDate && dueDate < date) return setError('Jatuh tempo tidak boleh sebelum tanggal hutang')
-    onSubmit({ direction, person: person.trim(), amount, date, dueDate, note: note.trim() })
+    onSubmit({ direction, person: person.trim(), amount, date, dueDate, note: note.trim() }, record)
   }
 
   return (
@@ -112,8 +114,26 @@ export function DebtForm({ initial, defaultDirection, personSuggestions, onSubmi
         {isEdit && (
           <p className="mt-3 text-xs text-slate-500">
             Riwayat pembayaran tetap tersimpan. Kalau nominal diubah jadi lebih kecil dari yang
-            sudah dibayar, kelebihannya akan otomatis ditampilkan.
+            sudah dibayar, kelebihannya akan otomatis ditampilkan. Transaksi yang tercatat dari hutang ini
+            ikut diperbarui.
           </p>
+        )}
+
+        {!isEdit && (
+          <label className="mt-4 flex items-start gap-2 text-sm text-slate-700">
+            <input
+              type="checkbox"
+              checked={record}
+              onChange={(e) => setRecord(e.target.checked)}
+              className="mt-0.5 h-4 w-4 shrink-0 accent-emerald-600"
+            />
+            <span>
+              {direction === 'owed_to_me'
+                ? 'Catat juga sebagai pengeluaran (uang yang kamu pinjamkan keluar dari saldo)'
+                : 'Catat juga sebagai pemasukan (uang pinjaman masuk ke saldo)'}
+              <span className="block text-xs text-slate-500">Matikan untuk hutang lama yang uangnya sudah tercatat sebelumnya.</span>
+            </span>
+          </label>
         )}
 
         {error && <p className="mt-3 text-sm font-medium text-rose-600">{error}</p>}

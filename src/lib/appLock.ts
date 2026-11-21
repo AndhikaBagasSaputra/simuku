@@ -10,7 +10,9 @@ const ATTEMPTS_KEY = 'keuangan:lock-attempts'
 /** Pengaturan yang tetap disimpan walau data dihapus karena lupa PIN */
 const KEEP_ON_WIPE = ['keuangan:theme']
 
+/** Panjang PIN bawaan; PIN 4 angka juga bisa dipilih */
 export const PIN_LENGTH = 6
+export const PIN_LENGTHS = [4, 6] as const
 export const DEFAULT_TIMEOUT_MIN = 5
 /** Salah sebanyak ini = harus menunggu dulu */
 const MAX_ATTEMPTS = 5
@@ -29,6 +31,8 @@ export interface LockConfig {
   hash: string
   /** Menit ditinggal sebelum terkunci lagi. 0 = langsung saat aplikasi ditinggal */
   timeoutMin: number
+  /** Jumlah angka PIN (4 atau 6). PIN lama yang belum menyimpan ini dianggap 6 */
+  length: number
 }
 
 export function getLockConfig(): LockConfig | null {
@@ -38,6 +42,7 @@ export function getLockConfig(): LockConfig | null {
     salt: raw.salt,
     hash: raw.hash,
     timeoutMin: typeof raw.timeoutMin === 'number' ? raw.timeoutMin : DEFAULT_TIMEOUT_MIN,
+    length: raw.length === 4 ? 4 : PIN_LENGTH,
   }
 }
 
@@ -68,6 +73,7 @@ export async function savePin(pin: string): Promise<LockConfig> {
     salt,
     hash: await hashPin(pin, salt),
     timeoutMin: getLockConfig()?.timeoutMin ?? DEFAULT_TIMEOUT_MIN,
+    length: pin.length,
   }
   saveToStorage(LOCK_KEY, config)
   clearFailures()

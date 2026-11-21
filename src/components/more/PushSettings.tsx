@@ -10,8 +10,8 @@ const STATE_TEXT: Record<PushState, string> = {
   'not-configured': 'Notifikasi belum diatur di server.',
   denied:
     'Izin notifikasi untuk Simuku diblokir. Izinkan lewat pengaturan browser atau HP (bagian Notifikasi), lalu buka lagi halaman ini.',
-  off: 'Dapatkan pengingat di HP sehari sebelum tagihan jatuh tempo, di hari H, dan sehari setelahnya, walau aplikasi sedang ditutup.',
-  on: 'Aktif di perangkat ini. Pengingat dikirim tiap pagi kalau ada tagihan yang jatuh tempo.',
+  off: '',
+  on: '',
 }
 
 /** Pengaturan notifikasi pengingat tagihan (hanya tampil saat sudah masuk akun) */
@@ -59,7 +59,7 @@ export function PushSettings() {
           <p className="text-xs text-slate-500">{state === 'on' ? 'Aktif' : 'Notifikasi ke HP'}</p>
         </div>
       </div>
-      <p className="mt-3 text-sm text-slate-600">{STATE_TEXT[state]}</p>
+      {STATE_TEXT[state] && <p className="mt-3 text-sm text-slate-600">{STATE_TEXT[state]}</p>}
 
       {state === 'off' && (
         <button

@@ -1,8 +1,9 @@
+import { Check, Copy, ListChecks } from 'lucide-react'
 import { useState } from 'react'
 import { getCategory } from '../../lib/categories'
 import { getDebtStats } from '../../lib/debt'
 import { formatRupiah, formatShortDate } from '../../lib/format'
-import { buildSplitText, calculateSplit, getPayerName, toSplitInput } from '../../lib/splitBill'
+import { buildSplitText, buildSplitTextShort, calculateSplit, getPayerName, toSplitInput } from '../../lib/splitBill'
 import { dangerButtonClass } from '../../lib/ui'
 import type { Debt, SplitBill } from '../../types'
 import { DebtStatusBadge } from '../debts/DebtStatusBadge'
@@ -19,7 +20,7 @@ interface Props {
 }
 
 export function SplitBillDetail({ bill, debts, onClose, onEdit, onDelete, onOpenDebt }: Props) {
-  const [copied, setCopied] = useState(false)
+  const [copied, setCopied] = useState<'short' | 'full' | null>(null)
   const input = toSplitInput(bill)
   const calc = calculateSplit(input)
   const category = getCategory(bill.categoryId)
@@ -27,11 +28,11 @@ export function SplitBillDetail({ bill, debts, onClose, onEdit, onDelete, onOpen
     .map((id) => debts.find((d) => d.id === id))
     .filter((d): d is Debt => Boolean(d))
 
-  async function handleCopy() {
+  async function handleCopy(kind: 'short' | 'full') {
     try {
-      await navigator.clipboard.writeText(buildSplitText(input, calc))
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
+      await navigator.clipboard.writeText(kind === 'short' ? buildSplitTextShort(input, calc) : buildSplitText(input, calc))
+      setCopied(kind)
+      setTimeout(() => setCopied(null), 2000)
     } catch {
       window.alert('Gagal menyalin. Coba lagi.')
     }
@@ -43,13 +44,26 @@ export function SplitBillDetail({ bill, debts, onClose, onEdit, onDelete, onOpen
         {formatShortDate(bill.date)} · {category.name} · Dibayar {getPayerName(input)}
       </p>
 
-      <button
-        type="button"
-        onClick={handleCopy}
-        className="w-full rounded-xl bg-primary py-3 font-semibold text-white hover:bg-primary-hover"
-      >
-        {copied ? 'Tersalin! Tinggal tempel ke WhatsApp' : 'Salin teks split bill'}
-      </button>
+      {/* Ringkas: nama, barang, total. Lengkap: rincian harga, diskon, dan biaya lain */}
+      <div className="grid grid-cols-2 gap-2">
+        <button
+          type="button"
+          onClick={() => void handleCopy('short')}
+          className="flex items-center justify-center gap-2 rounded-xl bg-primary py-3 font-semibold text-white shadow-sm transition hover:bg-primary-hover active:scale-[0.98] active:bg-primary-active"
+        >
+          {copied === 'short' ? <Check className="h-4 w-4" aria-hidden="true" /> : <Copy className="h-4 w-4" aria-hidden="true" />}
+          {copied === 'short' ? 'Tersalin' : 'Salin ringkas'}
+        </button>
+        {/* Tombol kedua senada (hijau lembut), bukan abu-abu, supaya terlihat satu pasangan */}
+        <button
+          type="button"
+          onClick={() => void handleCopy('full')}
+          className="flex items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 py-3 font-semibold text-emerald-700 transition hover:bg-emerald-100 active:scale-[0.98]"
+        >
+          {copied === 'full' ? <Check className="h-4 w-4" aria-hidden="true" /> : <ListChecks className="h-4 w-4" aria-hidden="true" />}
+          {copied === 'full' ? 'Tersalin' : 'Salin lengkap'}
+        </button>
+      </div>
 
       {linkedDebts.length > 0 && (
         <div className="mt-4">
