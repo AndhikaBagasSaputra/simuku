@@ -10,6 +10,10 @@ import { Sheet } from './ui/Sheet'
 interface Props {
   /** Diisi saat mode edit, kosong saat tambah baru */
   initial?: Transaction
+  /** Catatan yang pernah dipakai, untuk saran saat mengetik */
+  noteSuggestions?: string[]
+  /** Isian awal untuk transaksi baru, misalnya gaji */
+  preset?: Partial<TransactionInput>
   onSubmit: (input: TransactionInput) => void
   onDelete?: () => void
   onClose: () => void
@@ -25,10 +29,10 @@ const TYPES = [
   ['income', 'Pemasukan', 'bg-primary'],
 ] as const
 
-export function TransactionForm({ initial, onSubmit, onDelete, onClose }: Props) {
-  const [type, setType] = useState<TransactionType>(initial?.type ?? 'expense')
-  const [amount, setAmount] = useState(initial?.amount ?? 0)
-  const [categoryId, setCategoryId] = useState(initial?.categoryId ?? '')
+export function TransactionForm({ initial, preset, noteSuggestions = [], onSubmit, onDelete, onClose }: Props) {
+  const [type, setType] = useState<TransactionType>(initial?.type ?? preset?.type ?? 'expense')
+  const [amount, setAmount] = useState(initial?.amount ?? preset?.amount ?? 0)
+  const [categoryId, setCategoryId] = useState(initial?.categoryId ?? preset?.categoryId ?? '')
   const [date, setDate] = useState(initial?.date ?? todayISO())
   const [note, setNote] = useState(initial?.note ?? '')
   const [errors, setErrors] = useState<Errors>({})
@@ -45,7 +49,10 @@ export function TransactionForm({ initial, onSubmit, onDelete, onClose }: Props)
       categoryId !== initial.categoryId ||
       date !== initial.date ||
       note.trim() !== initial.note
-    : amount > 0 || categoryId !== '' || note.trim() !== '' || date !== today
+    : amount !== (preset?.amount ?? 0) ||
+      categoryId !== (preset?.categoryId ?? '') ||
+      note.trim() !== '' ||
+      date !== today
 
   function clearError(field: keyof Errors) {
     setErrors((prev) => (prev[field] ? { ...prev, [field]: undefined } : prev))
@@ -220,6 +227,8 @@ export function TransactionForm({ initial, onSubmit, onDelete, onClose }: Props)
           <input
             type="text"
             placeholder="Contoh: makan siang di kantor"
+            list="tx-note-suggestions"
+            autoComplete="off"
             maxLength={100}
             enterKeyHint="done"
             value={note}
@@ -227,6 +236,12 @@ export function TransactionForm({ initial, onSubmit, onDelete, onClose }: Props)
             className={inputClass}
           />
         </label>
+        {/* Saran catatan yang pernah dipakai, supaya ejaannya konsisten */}
+        <datalist id="tx-note-suggestions">
+          {noteSuggestions.map((n) => (
+            <option key={n} value={n} />
+          ))}
+        </datalist>
       </form>
     </Sheet>
   )

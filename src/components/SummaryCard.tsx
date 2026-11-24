@@ -4,10 +4,12 @@ import type { Transaction } from '../types'
 interface Props {
   transactions: Transaction[]
   label?: string
+  /** Teks kecil di kanan judul, misalnya "Gajian 3 hari lagi" */
+  note?: string
 }
 
 /** Kartu utama: sisa uang di periode terpilih, dengan rincian masuk & keluar dalam satu baris */
-export function SummaryCard({ transactions, label = 'Sisa bulan ini' }: Props) {
+export function SummaryCard({ transactions, label = 'Sisa bulan ini', note }: Props) {
   let income = 0
   let expense = 0
   for (const t of transactions) {
@@ -20,7 +22,10 @@ export function SummaryCard({ transactions, label = 'Sisa bulan ini' }: Props) {
   return (
     <section className="rounded-2xl bg-primary px-5 py-4 text-white shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
-        <h2 className="text-sm font-medium">{label}</h2>
+        <h2 className="text-sm font-medium">
+          {label}
+          {note && <span className="font-normal"> · {note}</span>}
+        </h2>
         {/* Saat minus kartu tetap hijau; tandanya label terang ini, bukan teks merah di atas hijau */}
         {minus && (
           <span className="rounded-full bg-white px-2.5 py-0.5 text-xs font-semibold text-alert">

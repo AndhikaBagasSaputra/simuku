@@ -1,11 +1,14 @@
 import { addDays, addMonths, formatMonth, formatShortDate, todayISO, toMonthKey } from './format'
+import { cycleOf, cycleRange, shiftCycle } from './payday'
 
-export type PresetId = 'month' | '7d' | '14d' | '30d' | '3m' | '6m' | 'year' | 'all' | 'custom'
+export type PresetId = 'payday' | 'month' | '7d' | '14d' | '30d' | '3m' | '6m' | 'year' | 'all' | 'custom'
 
 export interface Period {
   preset: PresetId
   /** Dipakai saat preset = 'month' (format YYYY-MM) */
   month: string
+  /** Dipakai saat preset = 'payday': 0 = periode gajian yang sedang berjalan, -1 = sebelumnya, dst. */
+  offset?: number
   /** Dipakai saat preset = 'custom' (format YYYY-MM-DD) */
   start: string
   end: string
@@ -18,6 +21,7 @@ export interface DateRange {
 }
 
 export const PRESETS: { id: PresetId; label: string }[] = [
+  { id: 'payday', label: 'Per gajian' },
   { id: 'month', label: 'Per bulan' },
   { id: '7d', label: '7 hari terakhir' },
   { id: '14d', label: '2 minggu terakhir' },
@@ -29,15 +33,23 @@ export const PRESETS: { id: PresetId; label: string }[] = [
   { id: 'custom', label: 'Pilih tanggal sendiri' },
 ]
 
-export function defaultPeriod(): Period {
+/** salaryDates kosong (belum pernah mencatat gaji) = per bulan kalender */
+export function defaultPeriod(salaryDates: readonly string[] = []): Period {
   const today = todayISO()
-  return { preset: 'month', month: toMonthKey(today), start: addDays(today, -6), end: today }
+  return { preset: salaryDates.length ? 'payday' : 'month', offset: 0, month: toMonthKey(today), start: addDays(today, -6), end: today }
 }
 
-/** Ubah pilihan periode menjadi rentang tanggal (inklusif) */
-export function getRange(period: Period): DateRange {
+/** Periode gajian yang dimaksud (kunci bulan), dihitung dari periode yang sedang berjalan */
+export function paydayCycle(period: Period, salaryDates: readonly string[] = []) {
+  return shiftCycle(cycleOf(todayISO(), salaryDates), period.offset ?? 0)
+}
+
+/** Ubah pilihan periode menjadi rentang tanggal (inklusif). salaryDates = tanggal gaji yang sudah dicatat */
+export function getRange(period: Period, salaryDates: readonly string[] = []): DateRange {
   const today = todayISO()
   switch (period.preset) {
+    case 'payday':
+      return cycleRange(paydayCycle(period, salaryDates), salaryDates)
     case 'month':
       // "YYYY-MM-31" aman untuk perbandingan string di semua bulan
       return { start: `${period.month}-01`, end: `${period.month}-31` }
@@ -67,10 +79,10 @@ export function isInRange(date: string, range: DateRange) {
 }
 
 /** Teks rentang, misalnya "27 Okt 2026 – 9 Nov 2026" */
-export function describeRange(period: Period) {
+export function describeRange(period: Period, salaryDates: readonly string[] = []) {
   if (period.preset === 'month') return formatMonth(period.month)
   if (period.preset === 'all') return 'Semua transaksi'
-  const { start, end } = getRange(period)
+  const { start, end } = getRange(period, salaryDates)
   if (!start || !end) return ''
   return start === end ? formatShortDate(start) : `${formatShortDate(start)} – ${formatShortDate(end)}`
 }
@@ -80,9 +92,9 @@ export function getPresetLabel(preset: PresetId) {
 }
 
 /** Bulan terakhir di periode ini (untuk grafik tren) */
-export function getEndMonth(period: Period) {
+export function getEndMonth(period: Period, salaryDates: readonly string[] = []) {
   if (period.preset === 'month') return period.month
-  const { end } = getRange(period)
+  const { end } = getRange(period, salaryDates)
   const today = todayISO()
   return toMonthKey(end && end < today ? end : today)
 }

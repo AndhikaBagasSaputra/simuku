@@ -178,6 +178,61 @@ function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } })
 }
 
+// ===== Gajian (salinan logika src/lib/payday.ts: tanggal 28, maju kalau Sabtu/Minggu/libur) =====
+// Daftar libur disalin dari src/lib/payday.ts; perbarui keduanya bersamaan.
+const HOLIDAYS = new Set([
+  // 2025 (hanya akhir tahun, untuk periode Januari 2026)
+  '2025-12-25', '2025-12-26',
+  // 2026
+  '2026-01-01', '2026-01-16', '2026-02-16', '2026-02-17', '2026-03-18', '2026-03-19', '2026-03-20',
+  '2026-03-21', '2026-03-22', '2026-03-23', '2026-03-24', '2026-04-03', '2026-04-05', '2026-05-01',
+  '2026-05-14', '2026-05-15', '2026-05-27', '2026-05-28', '2026-05-31', '2026-06-01', '2026-06-16',
+  '2026-08-17', '2026-08-25', '2026-12-24', '2026-12-25',
+  // 2027
+  '2027-01-01', '2027-01-05', '2027-02-05', '2027-02-06', '2027-03-08', '2027-03-09', '2027-03-10',
+  '2027-03-11', '2027-03-12', '2027-03-15', '2027-03-25', '2027-03-26', '2027-03-28', '2027-05-01',
+  '2027-05-06', '2027-05-17', '2027-05-18', '2027-05-19', '2027-05-20', '2027-06-01', '2027-06-06',
+  '2027-08-15', '2027-08-17', '2027-12-24', '2027-12-25', '2027-12-26',
+])
+
+export function expectedPayday(monthKey: string) {
+  let date = `${monthKey}-28`
+  for (;;) {
+    const day = new Date(parse(date)).getUTCDay()
+    if (day !== 0 && day !== 6 && !HOLIDAYS.has(date)) return date
+    date = addDays(date, -1)
+  }
+}
+
+/**
+ * Akun yang perlu diingatkan gajian hari ini: pernah mencatat gaji (berarti memang gajian tanggal 28),
+ * tapi gaji bulan ini belum dicatat. Dicek per akun dengan limit 1, jadi tidak terpotong batas baris.
+ */
+async function usersToRemindPayday(admin: SupabaseClient, userIds: string[], payday: string) {
+  const from = addDays(payday, -10)
+  const to = addDays(payday, 5)
+  const result = new Set<string>()
+  for (const userId of userIds) {
+    const base = () =>
+      admin
+        .from('items')
+        .select('id')
+        .eq('user_id', userId)
+        .eq('collection', 'transactions')
+        .eq('deleted', false)
+        .eq('data->>categoryId', 'gaji')
+        .eq('data->>type', 'income')
+        .limit(1)
+    const { data: ever, error } = await base()
+    if (error) throw error
+    if (!ever?.length) continue
+    const { data: thisMonth, error: monthError } = await base().gte('data->>date', from).lte('data->>date', to)
+    if (monthError) throw monthError
+    if (!thisMonth?.length) result.add(userId)
+  }
+  return result
+}
+
 // ===== GET: dijalankan Vercel Cron tiap pagi =====
 
 export async function GET(request: Request) {
@@ -205,7 +260,22 @@ export async function GET(request: Request) {
     users++
     sent += await sendToSubscriptions(admin, userSubs, { ...buildMessage(reminders), url: '/?page=tagihan', tag: `tagihan-${today}` })
   }
-  return json({ today, users, sent })
+  // Hari gajian: ingatkan mencatat gaji, dan laporan periode kemarin sudah siap
+  let paydayUsers = 0
+  if (today === expectedPayday(today.slice(0, 7))) {
+    const remind = await usersToRemindPayday(admin, [...subsByUser.keys()], today)
+    for (const [userId, userSubs] of subsByUser) {
+      if (!remind.has(userId)) continue
+      paydayUsers++
+      sent += await sendToSubscriptions(admin, userSubs, {
+        title: 'Hari ini gajian',
+        body: 'Catat gajimu. Laporan periode kemarin sudah siap.',
+        url: '/?page=laporan',
+        tag: `gajian-${today}`,
+      })
+    }
+  }
+  return json({ today, users, paydayUsers, sent })
 }
 
 // ===== POST: notifikasi uji dari aplikasi (hanya untuk akun yang sedang masuk) =====

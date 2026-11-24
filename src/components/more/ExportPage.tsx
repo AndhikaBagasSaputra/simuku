@@ -1,3 +1,4 @@
+import { salaryDatesOf } from '../../lib/payday'
 import { useState } from 'react'
 import { downloadCsv, downloadExcel, transactionRows, type ExportData } from '../../lib/export'
 import { todayISO } from '../../lib/format'
@@ -14,7 +15,8 @@ export function ExportPage({ data }: Props) {
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState('')
 
-  const range = getRange(period)
+  const salaryDates = salaryDatesOf(data.transactions)
+  const range = getRange(period, salaryDates)
   const transactions = data.transactions.filter((t) => isInRange(t.date, range))
   const today = todayISO()
   const suffix = period.preset === 'all' ? `semua_${today}` : `${range.start}_sd_${range.end}`
@@ -51,7 +53,7 @@ export function ExportPage({ data }: Props) {
       <div className="rounded-2xl bg-surface p-4 shadow-sm">
         <p className="text-sm font-semibold text-slate-800">Periode transaksi</p>
         <div className="mt-2">
-          <PeriodPicker period={period} onChange={setPeriod} />
+          <PeriodPicker period={period} onChange={setPeriod} salaryDates={salaryDates} />
         </div>
       </div>
 

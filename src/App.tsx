@@ -1,5 +1,5 @@
 import { ChevronLeft } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { BillDetail, type BillPayInput } from './components/bills/BillDetail'
 import { BillForm } from './components/bills/BillForm'
 import { BillsPage } from './components/bills/BillsPage'
@@ -16,6 +16,8 @@ import { BackupPage, type RestoreMode } from './components/more/BackupPage'
 import { UpdatePrompt } from './components/pwa/UpdatePrompt'
 import { ExportPage } from './components/more/ExportPage'
 import { LockPage } from './components/more/LockPage'
+import { ReportPage } from './components/more/ReportPage'
+import { noteSuggestions } from './lib/notes'
 import { MorePage } from './components/more/MorePage'
 import { SavingsDetail } from './components/savings/SavingsDetail'
 import { SavingsForm } from './components/savings/SavingsForm'
@@ -37,6 +39,7 @@ import { mergeData, type BackupData } from './lib/backup'
 import { getCategory } from './lib/categories'
 import { formatRupiah, formatShortDate, todayISO, toMonthKey } from './lib/format'
 import { defaultPeriod, getRange, isInRange, type Period } from './lib/period'
+import { cycleDistance, cycleOf, daysUntilPayday, SALARY_CATEGORY, salaryDatesOf } from './lib/payday'
 import { getBillStatus, isAttention } from './lib/recurring'
 import { calculateSplit, ME_ID, withMyName } from './lib/splitBill'
 import { loadDisplayName, saveDisplayName } from './lib/profile'
@@ -70,6 +73,7 @@ function initialPage(): PageKey {
 type FormState<T> = null | 'new' | T
 
 function summaryLabel(period: Period) {
+  if (period.preset === 'payday') return (period.offset ?? 0) === 0 ? 'Sisa sampai gajian' : 'Sisa periode ini'
   if (period.preset === 'month') return 'Sisa bulan ini'
   if (period.preset === 'all') return 'Sisa keseluruhan'
   return 'Sisa periode ini'
@@ -97,11 +101,12 @@ function App() {
   const [currentPage, setPage] = useState<PageKey>(initialPage)
   // Di desktop semua menu ada di sidebar, jadi halaman menu "Lainnya" diganti Target Tabungan
   const page: PageKey = isDesktop && currentPage === 'lainnya' ? 'tabungan' : currentPage
-  const [period, setPeriod] = useState<Period>(defaultPeriod)
+  const [period, setPeriod] = useState<Period>(() => defaultPeriod(salaryDatesOf(transactions)))
   const [toast, setToast] = useState<ToastData | null>(null)
 
   // ----- Panel yang terbuka (detail disimpan id-nya supaya selalu menampilkan data terbaru) -----
   const [transactionForm, setTransactionForm] = useState<FormState<Transaction>>(null)
+  const [transactionPreset, setTransactionPreset] = useState<Partial<TransactionInput> | undefined>(undefined)
   const [debtDirection, setDebtDirection] = useState<DebtDirection>('owed_to_me')
   const [debtForm, setDebtForm] = useState<FormState<Debt>>(null)
   const [selectedDebtId, setSelectedDebtId] = useState<string | null>(null)
@@ -190,8 +195,13 @@ function App() {
     withUndo('Data berhasil dipulihkan dari backup', () => replaceAllData(next))
   }
 
+  // Gaji yang sudah dicatat menentukan tanggal gajian sebenarnya (bisa maju karena tanggal merah)
+  const salaryDates = useMemo(() => salaryDatesOf(transactions), [transactions])
+  // Saran catatan di form transaksi (dihitung ulang hanya saat transaksi berubah)
+  const notes = useMemo(() => noteSuggestions(transactions), [transactions])
+
   // Transaksi dalam periode terpilih, terbaru di atas
-  const range = getRange(period)
+  const range = getRange(period, salaryDates)
   const periodTransactions = transactions
     .filter((t) => isInRange(t.date, range))
     .sort((a, b) => b.date.localeCompare(a.date) || b.createdAt.localeCompare(a.createdAt))
@@ -224,6 +234,7 @@ function App() {
   function handleTransactionSubmit(input: TransactionInput) {
     const editing = transactionForm
     setTransactionForm(null)
+    setTransactionPreset(undefined)
     function save() {
       if (editing === 'new') addTransaction(input)
       else if (editing) updateTransaction(editing.id, input)
@@ -233,8 +244,15 @@ function App() {
     const what = `${getCategory(input.categoryId).name} ${input.type === 'income' ? '+' : '−'}${formatRupiah(input.amount)}`
     const verb = editing === 'new' ? 'Tersimpan' : 'Perubahan disimpan'
 
+    // Mencatat gaji bisa menggeser batas periode: hitung dengan data sesudah disimpan
+    const after =
+      editing === 'new'
+        ? [...transactions, { ...input, id: '', createdAt: '' }]
+        : transactions.map((t) => (editing && t.id === editing.id ? { ...t, ...input } : t))
+    const datesAfter = salaryDatesOf(after)
+
     // Di periode yang sedang dilihat: bisa dibatalkan
-    if (isInRange(input.date, range)) {
+    if (isInRange(input.date, getRange(period, datesAfter))) {
       withUndo(`${verb} · ${what}`, save)
       return
     }
@@ -243,7 +261,11 @@ function App() {
     showToast(`${verb} · ${what} (${formatShortDate(input.date)}, di luar periode ini)`, {
       label: 'Lihat',
       onClick: () => {
-        setPeriod({ ...period, preset: 'month', month: toMonthKey(input.date) })
+        setPeriod(
+          period.preset === 'payday'
+            ? { ...period, offset: cycleDistance(cycleOf(todayISO(), datesAfter), cycleOf(input.date, datesAfter)) }
+            : { ...period, preset: 'month', month: toMonthKey(input.date) },
+        )
         setToast(null)
       },
     })
@@ -423,6 +445,12 @@ function App() {
               period={period}
               onPeriodChange={setPeriod}
               summaryLabel={summaryLabel(period)}
+              salaryDates={salaryDates}
+              summaryNote={
+                period.preset === 'payday' && (period.offset ?? 0) === 0
+                  ? `Gajian ${daysUntilPayday(todayISO(), salaryDates)} hari lagi`
+                  : undefined
+              }
               bills={bills}
               onSelectBill={(b) => setSelectedBillId(b.id)}
               onSeeAllBills={() => setPage('tagihan')}
@@ -452,6 +480,27 @@ function App() {
           {page === 'ekspor' && <ExportPage data={{ ...allData, splitBills: shownSplitBills }} />}
           {page === 'backup' && <BackupPage data={allData} onRestore={handleRestore} />}
           {page === 'keamanan' && <LockPage onNotify={showToast} />}
+          {page === 'laporan' && (
+            <ReportPage
+              transactions={transactions}
+              bills={bills}
+              debts={debts}
+              onRecordSalary={() => {
+                // Nominal mengikuti gaji terakhir yang dicatat
+                const last = [...transactions]
+                  .filter((t) => t.type === 'income' && t.categoryId === SALARY_CATEGORY)
+                  .sort((a, b) => b.date.localeCompare(a.date))[0]
+                setTransactionPreset({ type: 'income', categoryId: SALARY_CATEGORY, amount: last?.amount ?? 0 })
+                setTransactionForm('new')
+              }}
+              onRenameNote={(ids, note) =>
+                withUndo(`Catatan diubah di ${ids.length} transaksi`, () => {
+                  const target = new Set(ids)
+                  restoreTransactions((prev) => prev.map((t) => (target.has(t.id) ? { ...t, note } : t)))
+                })
+              }
+            />
+          )}
           {page === 'akun' && (
             <AccountPage
               account={account}
@@ -478,9 +527,14 @@ function App() {
         <TransactionForm
           key={`transaction-form-${transactionForm === 'new' ? 'new' : transactionForm.id}`}
           initial={transactionForm === 'new' ? undefined : transactionForm}
+          preset={transactionForm === 'new' ? transactionPreset : undefined}
+          noteSuggestions={notes}
           onSubmit={handleTransactionSubmit}
           onDelete={transactionForm === 'new' ? undefined : handleTransactionDelete}
-          onClose={() => setTransactionForm(null)}
+          onClose={() => {
+            setTransactionForm(null)
+            setTransactionPreset(undefined)
+          }}
         />
       )}
 

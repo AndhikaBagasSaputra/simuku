@@ -1,5 +1,6 @@
 import {
   BellRing,
+  ChartColumn,
   Cloud,
   DatabaseBackup,
   Download,
@@ -13,7 +14,7 @@ import {
 } from 'lucide-react'
 
 /** Semua halaman di aplikasi */
-export type PageKey = 'transaksi' | 'hutang' | 'splitbill' | 'lainnya' | 'tabungan' | 'tagihan' | 'ekspor' | 'backup' | 'keamanan' | 'akun'
+export type PageKey = 'transaksi' | 'hutang' | 'splitbill' | 'lainnya' | 'tabungan' | 'tagihan' | 'ekspor' | 'backup' | 'keamanan' | 'akun' | 'laporan'
 
 export interface NavItem {
   key: PageKey
@@ -26,6 +27,7 @@ export const SIDEBAR_ITEMS: NavItem[] = [
   { key: 'transaksi', label: 'Transaksi', icon: Wallet },
   { key: 'hutang', label: 'Hutang & Piutang', icon: HandCoins },
   { key: 'splitbill', label: 'Split Bill', icon: ReceiptText },
+  { key: 'laporan', label: 'Laporan', icon: ChartColumn },
   { key: 'tabungan', label: 'Target Tabungan', icon: Target },
   { key: 'tagihan', label: 'Tagihan Rutin', icon: BellRing },
   { key: 'ekspor', label: 'Ekspor Data', icon: Download },
@@ -45,7 +47,7 @@ export const BOTTOM_RIGHT: NavItem[] = [
 ]
 
 /** Halaman yang ada di dalam menu "Lainnya" versi HP */
-export const MORE_PAGES: PageKey[] = ['lainnya', 'tabungan', 'tagihan', 'ekspor', 'backup', 'keamanan', 'akun']
+export const MORE_PAGES: PageKey[] = ['lainnya', 'laporan', 'tabungan', 'tagihan', 'ekspor', 'backup', 'keamanan', 'akun']
 
 /** addLabel kosong = halaman tanpa tombol tambah (tidak ada daftar yang bisa ditambah di sana) */
 export const PAGE_INFO: Record<PageKey, { title: string; addLabel?: string }> = {
@@ -59,4 +61,5 @@ export const PAGE_INFO: Record<PageKey, { title: string; addLabel?: string }> = 
   backup: { title: 'Backup & Restore', },
   keamanan: { title: 'Kunci Aplikasi', },
   akun: { title: 'Akun & Sinkron', },
+  laporan: { title: 'Laporan' },
 }

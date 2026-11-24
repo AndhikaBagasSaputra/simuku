@@ -1,15 +1,17 @@
 import { CalendarDays, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useState } from 'react'
-import { formatMonth, shiftMonth } from '../lib/format'
+import { formatMonth, shiftMonth, todayISO } from '../lib/format'
 import { describeRange, getPresetLabel, getRange, PRESETS, type Period, type PresetId } from '../lib/period'
 import { Sheet } from './ui/Sheet'
 
 interface Props {
   period: Period
   onChange: (period: Period) => void
+  /** Tanggal gaji yang sudah dicatat (untuk periode gajian) */
+  salaryDates?: readonly string[]
 }
 
-export function PeriodPicker({ period, onChange }: Props) {
+export function PeriodPicker({ period, onChange, salaryDates = [] }: Props) {
   const [open, setOpen] = useState(false)
   const [showCustom, setShowCustom] = useState(false)
   const [customStart, setCustomStart] = useState(period.start)
@@ -17,7 +19,7 @@ export function PeriodPicker({ period, onChange }: Props) {
 
   function openSheet() {
     // Isi tanggal custom dengan rentang yang sedang aktif
-    const { start, end } = getRange(period)
+    const { start, end } = getRange(period, salaryDates)
     if (start && end) {
       setCustomStart(start)
       setCustomEnd(end)
@@ -28,7 +30,10 @@ export function PeriodPicker({ period, onChange }: Props) {
 
   function selectPreset(preset: PresetId) {
     if (preset === 'custom') return setShowCustom(true)
-    onChange({ ...period, preset })
+    // Pindah ke periode gajian / bulan: mulai dari periode yang sedang berjalan
+    if (preset === 'payday') onChange({ ...period, preset, offset: 0 })
+    else if (preset === 'month') onChange({ ...period, preset, month: todayISO().slice(0, 7) })
+    else onChange({ ...period, preset })
     setOpen(false)
   }
 
@@ -41,16 +46,20 @@ export function PeriodPicker({ period, onChange }: Props) {
   const arrowClass =
     'flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-slate-600 hover:bg-slate-200 active:bg-slate-300'
   const isMonth = period.preset === 'month'
+  // Bulan & periode gajian bisa digeser dengan panah
+  const stepped = isMonth || period.preset === 'payday'
 
   return (
     <>
       <div className="flex items-center gap-1">
-        {isMonth && (
+        {stepped && (
           <button
             type="button"
             className={arrowClass}
-            onClick={() => onChange({ ...period, month: shiftMonth(period.month, -1) })}
-            aria-label="Bulan sebelumnya"
+            onClick={() =>
+              onChange(isMonth ? { ...period, month: shiftMonth(period.month, -1) } : { ...period, offset: (period.offset ?? 0) - 1 })
+            }
+            aria-label="Periode sebelumnya"
           >
             <ChevronLeft className="h-5 w-5" aria-hidden="true" />
           </button>
@@ -64,21 +73,23 @@ export function PeriodPicker({ period, onChange }: Props) {
           <CalendarDays className="h-5 w-5 shrink-0 text-emerald-700" aria-hidden="true" />
           <span className="min-w-0 text-center">
             <span className="block truncate font-semibold text-slate-800">
-              {isMonth ? formatMonth(period.month) : getPresetLabel(period.preset)}
+              {isMonth ? formatMonth(period.month) : period.preset === 'payday' ? describeRange(period, salaryDates) : getPresetLabel(period.preset)}
             </span>
-            {!isMonth && period.preset !== 'all' && (
-              <span className="block truncate text-xs text-slate-500">{describeRange(period)}</span>
+            {!stepped && period.preset !== 'all' && (
+              <span className="block truncate text-xs text-slate-500">{describeRange(period, salaryDates)}</span>
             )}
           </span>
           <ChevronDown className="h-4 w-4 shrink-0 text-slate-500" aria-hidden="true" />
         </button>
 
-        {isMonth && (
+        {stepped && (
           <button
             type="button"
             className={arrowClass}
-            onClick={() => onChange({ ...period, month: shiftMonth(period.month, 1) })}
-            aria-label="Bulan berikutnya"
+            onClick={() =>
+              onChange(isMonth ? { ...period, month: shiftMonth(period.month, 1) } : { ...period, offset: (period.offset ?? 0) + 1 })
+            }
+            aria-label="Periode berikutnya"
           >
             <ChevronRight className="h-5 w-5" aria-hidden="true" />
           </button>

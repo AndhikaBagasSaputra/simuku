@@ -24,6 +24,10 @@ interface Props {
   period: Period
   onPeriodChange: (period: Period) => void
   summaryLabel: string
+  /** Tanggal gaji yang sudah dicatat (untuk periode gajian) */
+  salaryDates: readonly string[]
+  /** Catatan di kartu Sisa, misalnya "Gajian 3 hari lagi" */
+  summaryNote?: string
   bills: RecurringBill[]
   onSelectBill: (bill: RecurringBill) => void
   onSeeAllBills: () => void
@@ -69,7 +73,7 @@ export function HomePage(props: Props) {
       <StatisticsPage
         transactions={props.transactions}
         periodTransactions={periodTransactions}
-        endMonth={getEndMonth(period)}
+        endMonth={getEndMonth(period, props.salaryDates)}
       />
     </Suspense>
   )
@@ -152,9 +156,9 @@ export function HomePage(props: Props) {
           <TodayCard transactions={props.transactions} />
           <div className="space-y-2">
             <div className="rounded-2xl bg-surface p-2 shadow-sm">
-              <PeriodPicker period={period} onChange={onPeriodChange} />
+              <PeriodPicker period={period} onChange={onPeriodChange} salaryDates={props.salaryDates} />
             </div>
-            <SummaryCard transactions={periodTransactions} label={props.summaryLabel} />
+            <SummaryCard transactions={periodTransactions} label={props.summaryLabel} note={props.summaryNote} />
           </div>
           {history}
         </div>
@@ -180,8 +184,8 @@ export function HomePage(props: Props) {
 
       {/* Periode yang sedang dilihat */}
       <div className="space-y-1">
-        <PeriodPicker period={period} onChange={onPeriodChange} />
-        <SummaryCard transactions={periodTransactions} label={props.summaryLabel} />
+        <PeriodPicker period={period} onChange={onPeriodChange} salaryDates={props.salaryDates} />
+        <SummaryCard transactions={periodTransactions} label={props.summaryLabel} note={props.summaryNote} />
       </div>
 
       <section className="space-y-3">

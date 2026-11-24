@@ -1,4 +1,4 @@
-import { BellRing, Cloud, DatabaseBackup, Download, Lock, Target, type LucideIcon } from 'lucide-react'
+import { BellRing, ChartColumn, Cloud, DatabaseBackup, Download, Lock, Target, type LucideIcon } from 'lucide-react'
 import { useAppLock } from '../../hooks/useAppLock'
 import { getLastBackup } from '../../lib/backup'
 import { formatRupiah, formatShortDate, todayISO } from '../../lib/format'
@@ -25,6 +25,7 @@ export function MorePage({ goals, bills, syncLabel, onOpen }: Props) {
   const lock = useAppLock()
 
   const items: { view: PageKey; icon: LucideIcon; title: string; subtitle: string; badge?: string }[] = [
+    { view: 'laporan', icon: ChartColumn, title: 'Laporan', subtitle: 'Per periode gajian' },
     {
       view: 'tabungan',
       icon: Target,
